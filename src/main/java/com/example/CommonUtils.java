@@ -172,7 +172,7 @@ public class CommonUtils {
         // System.out.println(output.depth());
         // System.out.println(output.total());
         // System.out.println(output.type());
-        // output.convertTo(output, CvType.CV_32F);
+        // // output.convertTo(output, CvType.CV_32F);
         // System.out.println(output.type());
         // System.out.println(output);
         return output;
