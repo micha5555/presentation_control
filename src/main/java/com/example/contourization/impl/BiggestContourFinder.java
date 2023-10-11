@@ -28,7 +28,8 @@ public class BiggestContourFinder implements ContourizationInterface{
                 maxValIndex = contourIndex;
             }
         }
-        Mat canvas = Mat.zeros(inputMat.size(), CvType.CV_8UC3);
+        // Mat canvas = Mat.zeros(inputMat.size(), CvType.CV_8UC3);
+        Mat canvas = Mat.zeros(inputMat.size(), CvType.CV_32F);
         Imgproc.drawContours(canvas, contours, maxValIndex, new Scalar(255, 255, 255), 1);
         // Mat biggestContour = contours.get(maxValIndex);
         // Mat grayscaledBiggestContour = new Mat();

@@ -12,6 +12,7 @@ import java.util.List;
 
 import javax.imageio.ImageIO;
 
+import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
@@ -23,6 +24,9 @@ import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
+
+import com.example.contourization.ContourizationInterface;
+import com.example.contourization.impl.BiggestContourFinder;
 
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -56,6 +60,55 @@ public class CommonUtils {
     //     System.out.println(hullPoints);
     //     return inputMat;
     // }
+
+    public static BufferedImage convertBufferedImageToBinarizedBufferedImage(BufferedImage originalBufferedImage, Scalar minThreshold, Scalar maxThreshold) throws IOException{
+        Mat binarizedImageMat = convertBufferedImageToBinarizedMat(originalBufferedImage, minThreshold, maxThreshold);
+
+        return convertMatToBufferedImage(binarizedImageMat);
+    }
+
+    public static Mat convertBufferedImageToBinarizedMat(BufferedImage originalBufferedImage, Scalar minThreshold, Scalar maxThreshold) {
+        Mat originalImageMat = CommonUtils.convertBufferedImageToMat(originalBufferedImage);
+        Mat binarizedImageMat = new Mat();
+        Core.inRange(originalImageMat, minThreshold, maxThreshold, binarizedImageMat);
+
+        return binarizedImageMat;
+    }
+
+    public static BufferedImage convertMatToContourizedBufferedImage(Mat binarizedImageMat) throws IOException {
+        ContourizationInterface ci = new BiggestContourFinder();
+        Mat biggestContourMat = ci.findBiggestContour(binarizedImageMat);
+        List<MatOfPoint> contourMat = new ArrayList<>();
+        MatOfPoint convexHull = CommonUtils.findConvexHullPoints(biggestContourMat);
+        contourMat.add(convexHull);
+        Point centroid = CommonUtils.findCentroid(convexHull);
+        Imgproc.circle(biggestContourMat, centroid, 5, new Scalar(0, 0, 255), Imgproc.FILLED);
+        Imgproc.drawContours(biggestContourMat, contourMat, 0, new Scalar(255, 0, 0));
+        // BufferedImage contouredBufferedImage = CommonUtils.convertMatToBufferedImage(biggestContourMat);
+
+
+        return convertMatToBufferedImage(findConvexHull(biggestContourMat));
+    }
+
+    // public static BufferedImage convertBufferedImageToContourizedBufferedImage(BufferedImage binarizedBufferedImage) throws IOException {
+    //     Mat binarizedImageMat = convertBufferedImageToMat(binarizedBufferedImage);
+    //     ContourizationInterface ci = new BiggestContourFinder();
+    //     Mat biggestContourMat = ci.findBiggestContour(binarizedImageMat);
+
+    //     return convertMatToBufferedImage(findConvexHull(biggestContourMat));
+    // }
+
+    public static BufferedImage processContourizedBufferedImage(BufferedImage contourizedBufferedImage) throws IOException {
+        Mat biggestContourMat = convertBufferedImageToMat(contourizedBufferedImage);
+
+        List<MatOfPoint> contourMat = new ArrayList<>();
+        MatOfPoint convexHull = CommonUtils.findConvexHullPoints(biggestContourMat);
+        contourMat.add(convexHull);
+        Point centroid = CommonUtils.findCentroid(convexHull);
+        Imgproc.circle(biggestContourMat, centroid, 5, new Scalar(0, 0, 255), Imgproc.FILLED);
+        Imgproc.drawContours(biggestContourMat, contourMat, 0, new Scalar(255, 0, 0));
+        return convertMatToBufferedImage(biggestContourMat);
+    }
     
     public static BufferedImage convertMatToBufferedImage(Mat mat) throws IOException{
         //Encoding the image
@@ -116,6 +169,12 @@ public class CommonUtils {
             }
         }
         output.fromList(points);
+        // System.out.println(output.depth());
+        // System.out.println(output.total());
+        // System.out.println(output.type());
+        // output.convertTo(output, CvType.CV_32F);
+        // System.out.println(output.type());
+        // System.out.println(output);
         return output;
     }
 

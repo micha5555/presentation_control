@@ -35,8 +35,15 @@ import nu.pattern.OpenCV;
  */
 public class App extends Application
 {
-    static Scalar min = new Scalar(100, 0, 0);//BGR-A
-    static Scalar max= new Scalar(255, 250, 70);//BGR-A
+    // blue glove
+    static Scalar min = new Scalar(90, 0, 0);//BGR-A
+    static Scalar max= new Scalar(255, 100, 70);//BGR-A
+    // orange glove
+    // static Scalar min = new Scalar(50, 70, 112);//BGR-A
+    // static Scalar max= new Scalar(150, 150, 220);//BGR-A
+    // yellow glove
+    // static Scalar min = new Scalar(50, 85, 85);//BGR-A
+    // static Scalar max= new Scalar(90, 255, 255);//BGR-A
     private static BufferedImage originalBufferedImage = null;
     private static BufferedImage binarizedBufferedImage = null;
     private static BufferedImage skeletonizedBufferedImage = null;
@@ -85,7 +92,8 @@ public class App extends Application
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        primaryStage.setTitle("Hello World!");
+        setupJavaFxStage(primaryStage);
+        setupCamera();
         // Button btn = new Button();
         // btn.setText("Say 'Hello World'");
         // btn.setOnAction(new EventHandler<ActionEvent>() {
@@ -96,25 +104,28 @@ public class App extends Application
         //     }
         // });
 
-        originalImage = JavaFXTools.prepareImageView(originalBufferedImage, 10, 25, 640, 288);
-        binarizedImage = JavaFXTools.prepareImageView(binarizedBufferedImage, 660, 25, 640, 288);
-        contourImage = JavaFXTools.prepareImageView(contouredBufferedImage, 1310, 25, 640, 288);
+        
+        
+        // originalImage = JavaFXTools.prepareImageView(originalBufferedImage, 10, 25, 640, 288);
+        // binarizedImage = JavaFXTools.prepareImageView(binarizedBufferedImage, 660, 25, 640, 288);
+        // contourImage = JavaFXTools.prepareImageView(contouredBufferedImage, 1310, 25, 640, 288);
 
-        Group root = new Group(originalImage, binarizedImage, contourImage);  
+        // Group root = new Group(originalImage, binarizedImage, contourImage);  
         
         // StackPane root = new StackPane();
         // root.getChildren().add(btn);
-        primaryStage.setScene(new Scene(root, 2000, 800));
-        primaryStage.show();
+        // primaryStage.setScene(new Scene(root, 2000, 800));
+        // primaryStage.show();
 
-        camera = new OpenCVFrameGrabber(0);
-        converter = new OpenCVFrameConverter.ToMat();
-        converterBuffered = new Java2DFrameConverter();
-        // Frame capturedFrame = null;
-        org.bytedeco.opencv.opencv_core.Mat matImage = null;
-        camera.start();
+        
+        // camera = new OpenCVFrameGrabber(0);
+        // converter = new OpenCVFrameConverter.ToMat();
+        // converterBuffered = new Java2DFrameConverter();
+        // // Frame capturedFrame = null;
+        // org.bytedeco.opencv.opencv_core.Mat matImage = null;
+        // camera.start();
 
-        captureAndDisplayFrames();
+        // captureAndDisplayFrames();
         // System.out.println("aaaaaa");
         // while ((capturedFrame = camera.grab()) != null) {
         // //     System.out.println("bbbb");
@@ -136,6 +147,28 @@ public class App extends Application
         // camera.stop();
     }
 
+    private void setupJavaFxStage(Stage primaryStage) {
+        primaryStage.setTitle("Presentation Gesture Controller");
+        originalImage = JavaFXTools.prepareImageView(originalBufferedImage, 10, 25, 640, 288);
+        binarizedImage = JavaFXTools.prepareImageView(binarizedBufferedImage, 660, 25, 640, 288);
+        contourImage = JavaFXTools.prepareImageView(contouredBufferedImage, 1310, 25, 640, 288);
+
+        Group root = new Group(originalImage, binarizedImage, contourImage);
+        primaryStage.setScene(new Scene(root, 2000, 800));
+        primaryStage.show();
+    }
+
+    private void setupCamera() throws Exception {
+        camera = new OpenCVFrameGrabber(0);
+        converter = new OpenCVFrameConverter.ToMat();
+        converterBuffered = new Java2DFrameConverter();
+        // Frame capturedFrame = null;
+        org.bytedeco.opencv.opencv_core.Mat matImage = null;
+        camera.start();
+
+        captureAndDisplayFrames();
+    }
+
     private void captureAndDisplayFrames() {
         new Thread(() -> {
             while (!Thread.interrupted()) {
@@ -143,13 +176,15 @@ public class App extends Application
                     Frame frame = camera.grab(); // Capture a frame from the webcam
                     if (frame != null) {
                         BufferedImage originalBufferedImage = converterBuffered.convert(frame);
-                        Mat originalImageMat = CommonUtils.convertBufferedImageToMat(originalBufferedImage);
-                        Mat binarizedImageMat = new Mat();
-                        Core.inRange(originalImageMat, min, max, binarizedImageMat);
+                        Mat binarizedImageMat = CommonUtils.convertBufferedImageToBinarizedMat(originalBufferedImage, min, max);
+                        BufferedImage binarizedBufferedImage = CommonUtils.convertBufferedImageToBinarizedBufferedImage(originalBufferedImage, min, max);
+                        BufferedImage contouredBufferedImage = CommonUtils.convertMatToContourizedBufferedImage(binarizedImageMat);
+                        // BufferedImage processedContouredBufferedImage = CommonUtils.processContourizedBufferedImage(contouredBufferedImage);
+                        // Mat originalImageMat = CommonUtils.convertBufferedImageToMat(originalBufferedImage);
+                        // Core.inRange(originalImageMat, min, max, binarizedImageMat);
                         ContourizationInterface ci = new BiggestContourFinder();
                         Mat biggestContourMat = ci.findBiggestContour(binarizedImageMat);
-                        BufferedImage binarizedBufferedImage = CommonUtils.convertMatToBufferedImage(binarizedImageMat);
-                        BufferedImage contouredBufferedImage = CommonUtils.convertMatToBufferedImage(CommonUtils.findConvexHull(biggestContourMat));
+                        // BufferedImage binarizedBufferedImage = CommonUtils.convertMatToBufferedImage(binarizedImageMat);
                         // CommonUtils.findFingerTips(biggestContourMat);
                         // Update the JavaFX ImageView with the captured frame
                         List<MatOfPoint> contourMat = new ArrayList<>();
@@ -166,6 +201,7 @@ public class App extends Application
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+                // break;
             }
         }).start();
     }
