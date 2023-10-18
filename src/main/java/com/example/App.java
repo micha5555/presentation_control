@@ -33,8 +33,6 @@ import nu.pattern.OpenCV;
 
 public class App extends Application
 {
-    // static Scalar min = null;
-    // static Scalar max= null;
     // blue glove
     static Scalar minThresholdScalar = new Scalar(90, 0, 0);//BGR-A
     static Scalar maxThresholdScalar = new Scalar(255, 100, 70);//BGR-A
@@ -139,7 +137,6 @@ public class App extends Application
         camera = new OpenCVFrameGrabber(0);
         converter = new OpenCVFrameConverter.ToMat();
         converterBuffered = new Java2DFrameConverter();
-        // Frame capturedFrame = null;
         org.bytedeco.opencv.opencv_core.Mat matImage = null;
         camera.start();
 
@@ -151,7 +148,6 @@ public class App extends Application
             int delay = 0;
             while (!Thread.interrupted()) {
                 try {
-                    // Thread.sleep(50);
                     Frame frame = camera.grab(); // Capture a frame from the webcam
                     if (frame != null) {
                         BufferedImage originalBufferedImage = converterBuffered.convert(frame);
@@ -163,22 +159,6 @@ public class App extends Application
                             binarizedBufferedImage = CommonUtils.convertBufferedImageToBinarizedBufferedImage(originalBufferedImage, minThresholdScalar, maxThresholdScalar);
                             contouredBufferedImage = CommonUtils.convertMatToContourizedBufferedImage(binarizedImageMat);
                         }
-
-                        // BufferedImage processedContouredBufferedImage = CommonUtils.processContourizedBufferedImage(contouredBufferedImage);
-                        // Mat originalImageMat = CommonUtils.convertBufferedImageToMat(originalBufferedImage);
-                        // Core.inRange(originalImageMat, min, max, binarizedImageMat);
-//                        ContourizationInterface ci = new BiggestContourFinder();
-//                        Mat biggestContourMat = ci.findBiggestContour(binarizedImageMat);
-                        // BufferedImage binarizedBufferedImage = CommonUtils.convertMatToBufferedImage(binarizedImageMat);
-                        // CommonUtils.findFingerTips(biggestContourMat);
-                        // Update the JavaFX ImageView with the captured frame
-//                        List<MatOfPoint> contourMat = new ArrayList<>();
-//                        MatOfPoint convexHull = CommonUtils.findConvexHullPoints(biggestContourMat);
-//                        contourMat.add(convexHull);
-//                        Point centroid = CommonUtils.findCentroid(convexHull);
-//                        Imgproc.circle(biggestContourMat, centroid, 5, new Scalar(0, 0, 255), Imgproc.FILLED);
-//                        Imgproc.drawContours(biggestContourMat, contourMat, 0, new Scalar(255, 0, 0));
-//                        contouredBufferedImage = CommonUtils.convertMatToBufferedImage(biggestContourMat);
                         originalImage.setImage(CommonUtils.bufferedImageToFXImage(originalBufferedImage));
                         if(delay == 0) {
                             binarizedImage.setImage(CommonUtils.bufferedImageToFXImage(binarizedBufferedImage));
@@ -193,8 +173,6 @@ public class App extends Application
                 } else {
                     delay++;
                 }
-
-                // break;
             }
         }).start();
     }

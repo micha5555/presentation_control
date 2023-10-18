@@ -46,21 +46,6 @@ public class CommonUtils {
         return files;
     }
 
-    // public static Mat findFingerTips(Mat inputMat) {
-    //     MatOfInt hull = new MatOfInt();
-    //     List<Point> contourPoints = new ArrayList<>(inputMat.toList());
-
-    //     Imgproc.convexHull(new MatOfPoint(contourPoints.toArray(new Point[0])), hull);
-    //     List<Point> hullPoints = new ArrayList<>();
-    //     for (int i = 0; i < hull.rows(); i++) {
-    //         int index = (int) hull.get(i, 0)[0];
-    //         Point point = new MatOfPoint(contourPoints.toArray(new Point[0])).toList().get(index);
-    //         hullPoints.add(point);
-    //     }
-    //     System.out.println(hullPoints);
-    //     return inputMat;
-    // }
-
     public static BufferedImage convertBufferedImageToBinarizedBufferedImage(BufferedImage originalBufferedImage, Scalar minThreshold, Scalar maxThreshold) throws IOException{
         Mat binarizedImageMat = convertBufferedImageToBinarizedMat(originalBufferedImage, minThreshold, maxThreshold);
 
@@ -82,42 +67,22 @@ public class CommonUtils {
         MatOfPoint convexHull = findConvexHullPoints(biggestContourMat);
         contourMat.add(convexHull);
         Point centroid = findCentroid(convexHull);
-//        System.out.println(convexHull.toArray().length);
         List<Point> convexHullPoints = new ArrayList<>();
-        Point previousPoint = null;
-//        for(Point p : convexHull.toArray()) {
         int realPoints = 0;
         for(int i = 0; i < convexHull.toArray().length; i++) {
             Point currentPoint = convexHull.toArray()[i];
-//            double lengthFromPrevious = 0.0;
-//            if(previousPoint != null) {
-//                lengthFromPrevious = Math.sqrt(Math.pow((p.x - previousPoint.x), 2) + Math.pow((p.y - previousPoint.y), 2));
-//            }
-//            if(i == (convexHull.toArray().length -1)) {
-//                Point first = convexHull.toArray()[0];
-//                double lengthFromLastToFirst = Math.sqrt(Math.pow((p.x - first.x), 2) + Math.pow((p.y - first.y), 2));
-//                if(lengthFromLastToFirst < lengthFromPrevious) {
-//                    lengthFromPrevious = lengthFromLastToFirst;
-//                }
-//            }
             if(currentPoint.y + 30 < centroid.y && !isPointToCloseToAnotherPoint(currentPoint, convexHullPoints)) {
                 convexHullPoints.add(currentPoint);
                 Imgproc.circle(biggestContourMat, currentPoint, 7, new Scalar(255, 0, 0), Imgproc.FILLED);
                 realPoints++;
             }
-//            previousPoint = currentPoint;
         }
         for(Point p : convexHullPoints) {
             Imgproc.line(biggestContourMat, centroid, p, new Scalar(255, 0, 0), 3);
         }
         System.out.println(realPoints);
-//        System.out.println(centroid.x);
-//        System.out.println(centroid.y);
-//        System.out.println();
         Imgproc.circle(biggestContourMat, centroid, 10, new Scalar(255, 0, 0), Imgproc.FILLED);
         Imgproc.drawContours(biggestContourMat, contourMat, 0, new Scalar(255, 0, 0));
-//         BufferedImage contouredBufferedImage = CommonUtils.convertMatToBufferedImage(biggestContourMat);
-
 
         return convertMatToBufferedImage(biggestContourMat);
     }
@@ -150,14 +115,6 @@ public class CommonUtils {
         }
         return Math.sqrt(Math.pow((b.x - a.x), 2) + Math.pow((b.y - a.y), 2));
     }
-
-    // public static BufferedImage convertBufferedImageToContourizedBufferedImage(BufferedImage binarizedBufferedImage) throws IOException {
-    //     Mat binarizedImageMat = convertBufferedImageToMat(binarizedBufferedImage);
-    //     ContourizationInterface ci = new BiggestContourFinder();
-    //     Mat biggestContourMat = ci.findBiggestContour(binarizedImageMat);
-
-    //     return convertMatToBufferedImage(findConvexHull(biggestContourMat));
-    // }
 
     public static BufferedImage processContourizedBufferedImage(BufferedImage contourizedBufferedImage) throws IOException {
         Mat biggestContourMat = convertBufferedImageToMat(contourizedBufferedImage);
@@ -206,11 +163,6 @@ public class CommonUtils {
     }
 
     public static MatOfPoint matToMatOfPoint(Mat mat) {
-        // MatOfPoint matOfPoint = new MatOfPoint();
-        // MatOfPoint2f matOfPoint2f = new MatOfPoint2f();
-        // mat.convertTo(matOfPoint2f, CvType.CV_32F);
-        // matOfPoint2f.convertTo(matOfPoint, CvType.CV_32S);
-        // return matOfPoint;
         MatOfPoint matOfPoint = new MatOfPoint();
         MatOfPoint2f matOfPoint2f = new MatOfPoint2f();
         mat.convertTo(matOfPoint2f, CvType.CV_32F);
@@ -230,12 +182,6 @@ public class CommonUtils {
             }
         }
         output.fromList(points);
-        // System.out.println(output.depth());
-        // System.out.println(output.total());
-        // System.out.println(output.type());
-        // // output.convertTo(output, CvType.CV_32F);
-        // System.out.println(output.type());
-        // System.out.println(output);
         return output;
     }
 
