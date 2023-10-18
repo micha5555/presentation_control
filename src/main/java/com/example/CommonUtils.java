@@ -79,15 +79,76 @@ public class CommonUtils {
         ContourizationInterface ci = new BiggestContourFinder();
         Mat biggestContourMat = ci.findBiggestContour(binarizedImageMat);
         List<MatOfPoint> contourMat = new ArrayList<>();
-        MatOfPoint convexHull = CommonUtils.findConvexHullPoints(biggestContourMat);
+        MatOfPoint convexHull = findConvexHullPoints(biggestContourMat);
         contourMat.add(convexHull);
-        Point centroid = CommonUtils.findCentroid(convexHull);
-        Imgproc.circle(biggestContourMat, centroid, 5, new Scalar(0, 0, 255), Imgproc.FILLED);
+        Point centroid = findCentroid(convexHull);
+//        System.out.println(convexHull.toArray().length);
+        List<Point> convexHullPoints = new ArrayList<>();
+        Point previousPoint = null;
+//        for(Point p : convexHull.toArray()) {
+        int realPoints = 0;
+        for(int i = 0; i < convexHull.toArray().length; i++) {
+            Point currentPoint = convexHull.toArray()[i];
+//            double lengthFromPrevious = 0.0;
+//            if(previousPoint != null) {
+//                lengthFromPrevious = Math.sqrt(Math.pow((p.x - previousPoint.x), 2) + Math.pow((p.y - previousPoint.y), 2));
+//            }
+//            if(i == (convexHull.toArray().length -1)) {
+//                Point first = convexHull.toArray()[0];
+//                double lengthFromLastToFirst = Math.sqrt(Math.pow((p.x - first.x), 2) + Math.pow((p.y - first.y), 2));
+//                if(lengthFromLastToFirst < lengthFromPrevious) {
+//                    lengthFromPrevious = lengthFromLastToFirst;
+//                }
+//            }
+            if(currentPoint.y + 30 < centroid.y && !isPointToCloseToAnotherPoint(currentPoint, convexHullPoints)) {
+                convexHullPoints.add(currentPoint);
+                Imgproc.circle(biggestContourMat, currentPoint, 7, new Scalar(255, 0, 0), Imgproc.FILLED);
+                realPoints++;
+            }
+//            previousPoint = currentPoint;
+        }
+        for(Point p : convexHullPoints) {
+            Imgproc.line(biggestContourMat, centroid, p, new Scalar(255, 0, 0), 3);
+        }
+        System.out.println(realPoints);
+//        System.out.println(centroid.x);
+//        System.out.println(centroid.y);
+//        System.out.println();
+        Imgproc.circle(biggestContourMat, centroid, 10, new Scalar(255, 0, 0), Imgproc.FILLED);
         Imgproc.drawContours(biggestContourMat, contourMat, 0, new Scalar(255, 0, 0));
-        // BufferedImage contouredBufferedImage = CommonUtils.convertMatToBufferedImage(biggestContourMat);
+//         BufferedImage contouredBufferedImage = CommonUtils.convertMatToBufferedImage(biggestContourMat);
 
 
-        return convertMatToBufferedImage(findConvexHull(biggestContourMat));
+        return convertMatToBufferedImage(biggestContourMat);
+    }
+
+    private static boolean isPointToCloseToAnotherPoint(Point currentPoint, List<Point> previousPoints) {
+//        TODO: przemyśleć
+        if(currentPoint == null || previousPoints == null) {
+            return true;
+        } else if(previousPoints.size() == 0) {
+            return false;
+        }
+        double smallestDistance = 0.0;
+        for(int i = 0; i < previousPoints.size(); i++) {
+            Point pointFromList = previousPoints.get(i);
+            double distanceBetweenPoints = countDistanceBetweenPoints(currentPoint, pointFromList);
+            if(i == 0) {
+                smallestDistance = distanceBetweenPoints;
+                continue;
+            }
+            if(distanceBetweenPoints < smallestDistance) {
+                smallestDistance = distanceBetweenPoints;
+            }
+        }
+        return smallestDistance < StaticData.MINIMAL_DISTANCE_BETWEEN_CONVEX_HULL_POINTS;
+    }
+
+    private static double countDistanceBetweenPoints(Point a, Point b) {
+        if(a == null || b == null) {
+            return 0;
+        }
+        return Math.sqrt(Math.pow((b.x - a.x), 2) + Math.pow((b.y - a.y), 2));
     }
 
     // public static BufferedImage convertBufferedImageToContourizedBufferedImage(BufferedImage binarizedBufferedImage) throws IOException {

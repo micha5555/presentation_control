@@ -31,10 +31,6 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import nu.pattern.OpenCV;
 
-/**
- * Hello world!
- *
- */
 public class App extends Application
 {
     // static Scalar min = null;
@@ -152,37 +148,52 @@ public class App extends Application
 
     private void captureAndDisplayFrames() {
         new Thread(() -> {
+            int delay = 0;
             while (!Thread.interrupted()) {
                 try {
-                    Thread.sleep(50);
+                    // Thread.sleep(50);
                     Frame frame = camera.grab(); // Capture a frame from the webcam
                     if (frame != null) {
                         BufferedImage originalBufferedImage = converterBuffered.convert(frame);
-                        Mat binarizedImageMat = CommonUtils.convertBufferedImageToBinarizedMat(originalBufferedImage, minThresholdScalar, maxThresholdScalar );
-                        BufferedImage binarizedBufferedImage = CommonUtils.convertBufferedImageToBinarizedBufferedImage(originalBufferedImage, minThresholdScalar, maxThresholdScalar);
-                        BufferedImage contouredBufferedImage = CommonUtils.convertMatToContourizedBufferedImage(binarizedImageMat);
+                        Mat binarizedImageMat = null;
+                        BufferedImage binarizedBufferedImage = null;
+                        BufferedImage contouredBufferedImage = null;
+                        if(delay == 0){
+                            binarizedImageMat = CommonUtils.convertBufferedImageToBinarizedMat(originalBufferedImage, minThresholdScalar, maxThresholdScalar );
+                            binarizedBufferedImage = CommonUtils.convertBufferedImageToBinarizedBufferedImage(originalBufferedImage, minThresholdScalar, maxThresholdScalar);
+                            contouredBufferedImage = CommonUtils.convertMatToContourizedBufferedImage(binarizedImageMat);
+                        }
+
                         // BufferedImage processedContouredBufferedImage = CommonUtils.processContourizedBufferedImage(contouredBufferedImage);
                         // Mat originalImageMat = CommonUtils.convertBufferedImageToMat(originalBufferedImage);
                         // Core.inRange(originalImageMat, min, max, binarizedImageMat);
-                        ContourizationInterface ci = new BiggestContourFinder();
-                        Mat biggestContourMat = ci.findBiggestContour(binarizedImageMat);
+//                        ContourizationInterface ci = new BiggestContourFinder();
+//                        Mat biggestContourMat = ci.findBiggestContour(binarizedImageMat);
                         // BufferedImage binarizedBufferedImage = CommonUtils.convertMatToBufferedImage(binarizedImageMat);
                         // CommonUtils.findFingerTips(biggestContourMat);
                         // Update the JavaFX ImageView with the captured frame
-                        List<MatOfPoint> contourMat = new ArrayList<>();
-                        MatOfPoint convexHull = CommonUtils.findConvexHullPoints(biggestContourMat);
-                        contourMat.add(convexHull);
-                        Point centroid = CommonUtils.findCentroid(convexHull);
-                        Imgproc.circle(biggestContourMat, centroid, 5, new Scalar(0, 0, 255), Imgproc.FILLED);
-                        Imgproc.drawContours(biggestContourMat, contourMat, 0, new Scalar(255, 0, 0));
-                        contouredBufferedImage = CommonUtils.convertMatToBufferedImage(biggestContourMat);
+//                        List<MatOfPoint> contourMat = new ArrayList<>();
+//                        MatOfPoint convexHull = CommonUtils.findConvexHullPoints(biggestContourMat);
+//                        contourMat.add(convexHull);
+//                        Point centroid = CommonUtils.findCentroid(convexHull);
+//                        Imgproc.circle(biggestContourMat, centroid, 5, new Scalar(0, 0, 255), Imgproc.FILLED);
+//                        Imgproc.drawContours(biggestContourMat, contourMat, 0, new Scalar(255, 0, 0));
+//                        contouredBufferedImage = CommonUtils.convertMatToBufferedImage(biggestContourMat);
                         originalImage.setImage(CommonUtils.bufferedImageToFXImage(originalBufferedImage));
-                        binarizedImage.setImage(CommonUtils.bufferedImageToFXImage(binarizedBufferedImage));
-                        contourImage.setImage(CommonUtils.bufferedImageToFXImage(contouredBufferedImage));
+                        if(delay == 0) {
+                            binarizedImage.setImage(CommonUtils.bufferedImageToFXImage(binarizedBufferedImage));
+                            contourImage.setImage(CommonUtils.bufferedImageToFXImage(contouredBufferedImage));
+                        }
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+                if(delay == StaticData.FRAMES_DELAY) {
+                    delay = 0;
+                } else {
+                    delay++;
+                }
+
                 // break;
             }
         }).start();
