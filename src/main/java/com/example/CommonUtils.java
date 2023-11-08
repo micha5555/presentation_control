@@ -1,39 +1,24 @@
 package com.example;
 
-import java.awt.image.DataBufferByte;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.imageio.ImageIO;
-
-import com.example.converters.IConverter;
-import com.example.converters.impl.Converter;
-import org.opencv.core.Core;
-import org.opencv.core.CvType;
-import org.opencv.core.Mat;
-import org.opencv.core.MatOfByte;
-import org.opencv.core.MatOfInt;
-import org.opencv.core.MatOfPoint;
-import org.opencv.core.MatOfPoint2f;
-import org.opencv.core.Point;
-import org.opencv.core.Scalar;
-import org.opencv.imgcodecs.Imgcodecs;
-import org.opencv.imgproc.Imgproc;
-
 import com.example.contourization.IContourization;
 import com.example.contourization.impl.BiggestContourFinder;
-
+import com.example.converters.IConverter;
+import com.example.converters.impl.Converter;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
+import org.opencv.core.*;
+import org.opencv.imgproc.Imgproc;
+
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class CommonUtils {
 
@@ -48,21 +33,6 @@ public class CommonUtils {
         }
         return files;
     }
-
-//    public static BufferedImage convertBufferedImageToBinarizedBufferedImage(BufferedImage originalBufferedImage, Scalar minThreshold, Scalar maxThreshold) throws IOException{
-//        Mat binarizedImageMat = convertBufferedImageToBinarizedMat(originalBufferedImage, minThreshold, maxThreshold);
-//
-//        return converter.convertMatToBufferedImage(binarizedImageMat);
-//    }
-
-    // moving to binarization package
-//    public static Mat convertBufferedImageToBinarizedMat(BufferedImage originalBufferedImage, Scalar minThreshold, Scalar maxThreshold) {
-//        Mat originalImageMat = CommonUtils.convertBufferedImageToMat(originalBufferedImage);
-//        Mat binarizedImageMat = new Mat();
-//        Core.inRange(originalImageMat, minThreshold, maxThreshold, binarizedImageMat);
-//
-//        return binarizedImageMat;
-//    }
 
 //    To do rozwalenia na drobniejsze metody
     public static BufferedImage convertMatToContourizedBufferedImage(Mat binarizedImageMat) throws IOException {
@@ -157,19 +127,6 @@ public class CommonUtils {
         Imgproc.drawContours(biggestContourMat, contourMat, 0, new Scalar(255, 0, 0));
         return converter.convertMatToBufferedImage(biggestContourMat);
     }
-
-    // moving to binarization package
-//    public static BufferedImage convertMatToBufferedImage(Mat mat) throws IOException{
-//        //Encoding the image
-//        MatOfByte matOfByte = new MatOfByte();
-//        Imgcodecs.imencode(".jpg", mat, matOfByte);
-//        //Storing the encoded Mat in a byte array
-//        byte[] byteArray = matOfByte.toArray();
-//        //Preparing the Buffered Image
-//        InputStream in = new ByteArrayInputStream(byteArray);
-//        BufferedImage bufImage = ImageIO.read(in);
-//        return bufImage;
-//    }
 
     public static Mat convertBufferedImageToMat(BufferedImage bufferedImage) {
         Mat mat = new Mat(bufferedImage.getHeight(), bufferedImage.getWidth(), CvType.CV_8UC3);
