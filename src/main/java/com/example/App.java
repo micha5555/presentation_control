@@ -3,6 +3,10 @@ package com.example;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
+import com.example.binarization.IBinarizator;
+import com.example.binarization.impl.Binarizator;
+import com.example.converters.IConverter;
+import com.example.converters.impl.Converter;
 import org.bytedeco.javacv.Frame;
 import org.bytedeco.javacv.Java2DFrameConverter;
 import org.bytedeco.javacv.OpenCVFrameConverter;
@@ -25,6 +29,8 @@ import nu.pattern.OpenCV;
 
 public class App extends Application
 {
+    static IBinarizator binarizator;
+    static IConverter converter;
     // blue glove
     static Scalar minThresholdScalar = new Scalar(90, 0, 0);//BGR-A
     static Scalar maxThresholdScalar = new Scalar(255, 100, 70);//BGR-A
@@ -54,12 +60,14 @@ public class App extends Application
 
     OpenCVFrameGrabber camera;
     Java2DFrameConverter converterBuffered;
-    OpenCVFrameConverter.ToMat converter;
+    OpenCVFrameConverter.ToMat opencvConverter;
     // to było git dla palm1
     // static Scalar min = new Scalar(150, 0, 0);//BGR-A
     // static Scalar max= new Scalar(255, 250, 110);//BGR-A
     public static void main( String[] args ) throws IOException
     {
+        binarizator = new Binarizator();
+        converter = new Converter();
         OpenCV.loadLocally();
 //        System.out.println(CommonUtils.countAngleBetweenPointAndLineWithOnlyY(new Point(0,1), new Point(1,0))); //expected : 45
 //        System.out.println(CommonUtils.countAngleBetweenPointAndLineWithOnlyY(new Point(0,1), new Point(0,0))); //expected : 90
@@ -131,7 +139,7 @@ public class App extends Application
 
     private void setupCamera() throws Exception {
         camera = new OpenCVFrameGrabber(0);
-        converter = new OpenCVFrameConverter.ToMat();
+        opencvConverter = new OpenCVFrameConverter.ToMat();
         converterBuffered = new Java2DFrameConverter();
         org.bytedeco.opencv.opencv_core.Mat matImage = null;
         camera.start();
@@ -151,8 +159,8 @@ public class App extends Application
                         BufferedImage binarizedBufferedImage = null;
                         BufferedImage contouredBufferedImage = null;
                         if(delay == 0){
-                            binarizedImageMat = CommonUtils.convertBufferedImageToBinarizedMat(originalBufferedImage, minThresholdScalar, maxThresholdScalar );
-                            binarizedBufferedImage = CommonUtils.convertBufferedImageToBinarizedBufferedImage(originalBufferedImage, minThresholdScalar, maxThresholdScalar);
+                            binarizedImageMat = binarizator.convertBufferedImageToBinarizedMat(originalBufferedImage, minThresholdScalar, maxThresholdScalar );
+                            binarizedBufferedImage = converter.convertMatToBufferedImage(binarizedImageMat);
                             contouredBufferedImage = CommonUtils.convertMatToContourizedBufferedImage(binarizedImageMat);
                         }
                         originalImage.setImage(CommonUtils.bufferedImageToFXImage(originalBufferedImage));

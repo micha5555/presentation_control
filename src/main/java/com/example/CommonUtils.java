@@ -13,6 +13,8 @@ import java.util.Map;
 
 import javax.imageio.ImageIO;
 
+import com.example.converters.IConverter;
+import com.example.converters.impl.Converter;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
@@ -34,7 +36,8 @@ import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 
 public class CommonUtils {
-    
+
+    private static IConverter converter = new Converter();
     public static ArrayList<File> listFilesForFolder(final File folder) {
         ArrayList<File> files = new ArrayList<File>();
         for (final File fileEntry : folder.listFiles()) {
@@ -46,19 +49,20 @@ public class CommonUtils {
         return files;
     }
 
-    public static BufferedImage convertBufferedImageToBinarizedBufferedImage(BufferedImage originalBufferedImage, Scalar minThreshold, Scalar maxThreshold) throws IOException{
-        Mat binarizedImageMat = convertBufferedImageToBinarizedMat(originalBufferedImage, minThreshold, maxThreshold);
+//    public static BufferedImage convertBufferedImageToBinarizedBufferedImage(BufferedImage originalBufferedImage, Scalar minThreshold, Scalar maxThreshold) throws IOException{
+//        Mat binarizedImageMat = convertBufferedImageToBinarizedMat(originalBufferedImage, minThreshold, maxThreshold);
+//
+//        return converter.convertMatToBufferedImage(binarizedImageMat);
+//    }
 
-        return convertMatToBufferedImage(binarizedImageMat);
-    }
-
-    public static Mat convertBufferedImageToBinarizedMat(BufferedImage originalBufferedImage, Scalar minThreshold, Scalar maxThreshold) {
-        Mat originalImageMat = CommonUtils.convertBufferedImageToMat(originalBufferedImage);
-        Mat binarizedImageMat = new Mat();
-        Core.inRange(originalImageMat, minThreshold, maxThreshold, binarizedImageMat);
-
-        return binarizedImageMat;
-    }
+    // moving to binarization package
+//    public static Mat convertBufferedImageToBinarizedMat(BufferedImage originalBufferedImage, Scalar minThreshold, Scalar maxThreshold) {
+//        Mat originalImageMat = CommonUtils.convertBufferedImageToMat(originalBufferedImage);
+//        Mat binarizedImageMat = new Mat();
+//        Core.inRange(originalImageMat, minThreshold, maxThreshold, binarizedImageMat);
+//
+//        return binarizedImageMat;
+//    }
 
 //    To do rozwalenia na drobniejsze metody
     public static BufferedImage convertMatToContourizedBufferedImage(Mat binarizedImageMat) throws IOException {
@@ -88,7 +92,7 @@ public class CommonUtils {
         Imgproc.circle(biggestContourMat, centroid, 10, new Scalar(255, 0, 0), Imgproc.FILLED);
         Imgproc.drawContours(biggestContourMat, contourMat, 0, new Scalar(255, 0, 0));
 
-        return convertMatToBufferedImage(biggestContourMat);
+        return converter.convertMatToBufferedImage(biggestContourMat);
     }
 
     private static boolean isPointToCloseToAnotherPoint(Point currentPoint, List<Point> previousPoints) {
@@ -151,20 +155,21 @@ public class CommonUtils {
         Point centroid = CommonUtils.findCentroid(convexHull);
         Imgproc.circle(biggestContourMat, centroid, 5, new Scalar(0, 0, 255), Imgproc.FILLED);
         Imgproc.drawContours(biggestContourMat, contourMat, 0, new Scalar(255, 0, 0));
-        return convertMatToBufferedImage(biggestContourMat);
+        return converter.convertMatToBufferedImage(biggestContourMat);
     }
-    
-    public static BufferedImage convertMatToBufferedImage(Mat mat) throws IOException{
-        //Encoding the image
-        MatOfByte matOfByte = new MatOfByte();
-        Imgcodecs.imencode(".jpg", mat, matOfByte);
-        //Storing the encoded Mat in a byte array
-        byte[] byteArray = matOfByte.toArray();
-        //Preparing the Buffered Image
-        InputStream in = new ByteArrayInputStream(byteArray);
-        BufferedImage bufImage = ImageIO.read(in);
-        return bufImage;
-    }
+
+    // moving to binarization package
+//    public static BufferedImage convertMatToBufferedImage(Mat mat) throws IOException{
+//        //Encoding the image
+//        MatOfByte matOfByte = new MatOfByte();
+//        Imgcodecs.imencode(".jpg", mat, matOfByte);
+//        //Storing the encoded Mat in a byte array
+//        byte[] byteArray = matOfByte.toArray();
+//        //Preparing the Buffered Image
+//        InputStream in = new ByteArrayInputStream(byteArray);
+//        BufferedImage bufImage = ImageIO.read(in);
+//        return bufImage;
+//    }
 
     public static Mat convertBufferedImageToMat(BufferedImage bufferedImage) {
         Mat mat = new Mat(bufferedImage.getHeight(), bufferedImage.getWidth(), CvType.CV_8UC3);
