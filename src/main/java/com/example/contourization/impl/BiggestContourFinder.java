@@ -9,9 +9,9 @@ import org.opencv.core.MatOfPoint;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
-import com.example.contourization.ContourizationInterface;
+import com.example.contourization.IContourization;
 
-public class BiggestContourFinder implements ContourizationInterface{
+public class BiggestContourFinder implements IContourization {
 
     @Override
     public Mat findBiggestContour(Mat inputMat) {

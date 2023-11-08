@@ -3,12 +3,13 @@ package com.example;
 import java.awt.image.DataBufferByte;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.imageio.ImageIO;
 
@@ -17,7 +18,6 @@ import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
 import org.opencv.core.MatOfInt;
-import org.opencv.core.MatOfInt4;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
@@ -25,7 +25,7 @@ import org.opencv.core.Scalar;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
-import com.example.contourization.ContourizationInterface;
+import com.example.contourization.IContourization;
 import com.example.contourization.impl.BiggestContourFinder;
 
 import javafx.scene.image.Image;
@@ -60,8 +60,9 @@ public class CommonUtils {
         return binarizedImageMat;
     }
 
+//    To do rozwalenia na drobniejsze metody
     public static BufferedImage convertMatToContourizedBufferedImage(Mat binarizedImageMat) throws IOException {
-        ContourizationInterface ci = new BiggestContourFinder();
+        IContourization ci = new BiggestContourFinder();
         Mat biggestContourMat = ci.findBiggestContour(binarizedImageMat);
         List<MatOfPoint> contourMat = new ArrayList<>();
         MatOfPoint convexHull = findConvexHullPoints(biggestContourMat);
@@ -77,10 +78,13 @@ public class CommonUtils {
                 realPoints++;
             }
         }
-        for(Point p : convexHullPoints) {
+        Map<Point, FingerNames> pointsToFinger = nameFingerTips(convexHullPoints, centroid);
+        List<Point> pointsToDraw = new ArrayList<>(pointsToFinger.keySet());
+        for(Point p : pointsToDraw) {
             Imgproc.line(biggestContourMat, centroid, p, new Scalar(255, 0, 0), 3);
+            Imgproc.putText(biggestContourMat, pointsToFinger.get(p).toString(), p, 1, 2, new Scalar(255, 0, 0));
         }
-        System.out.println(realPoints);
+//        System.out.println(realPoints);
         Imgproc.circle(biggestContourMat, centroid, 10, new Scalar(255, 0, 0), Imgproc.FILLED);
         Imgproc.drawContours(biggestContourMat, contourMat, 0, new Scalar(255, 0, 0));
 
@@ -114,6 +118,28 @@ public class CommonUtils {
             return 0;
         }
         return Math.sqrt(Math.pow((b.x - a.x), 2) + Math.pow((b.y - a.y), 2));
+    }
+
+    private static Map<Point, FingerNames> nameFingerTips(List<Point> points, Point centroid) {
+        Map<Point, FingerNames> pointToFinger = new HashMap<>();
+        for(Point p : points) {
+            // add logic when it is not finger or something
+            double angle = countAngleBetweenPointAndLineWithOnlyY(p, centroid);
+            if(angle >= 0 && angle <= 45) {
+                pointToFinger.put(p, FingerNames.THUMB);
+            } else if(angle > 45 && angle <= 80){
+                pointToFinger.put(p, FingerNames.INDEX);
+            } else if(angle > 80 && angle <= 100){
+                pointToFinger.put(p, FingerNames.MIDDLE);
+            } else if(angle > 100 && angle <= 130){
+                pointToFinger.put(p, FingerNames.RING);
+            } else if(angle > 130 && angle <= 170){
+                pointToFinger.put(p, FingerNames.PINKY);
+            }
+            System.out.println(angle);
+        }
+        System.out.println("");
+        return pointToFinger;
     }
 
     public static BufferedImage processContourizedBufferedImage(BufferedImage contourizedBufferedImage) throws IOException {
@@ -222,5 +248,20 @@ public class CommonUtils {
         }
 
         return new Point(xSum/pointsList.size(), ySum/pointsList.size());
+    }
+
+    public static double countAngleBetweenPointAndLineWithOnlyY(Point p, Point centroid) {
+        boolean pointOnRightSide = p.x > centroid.x;
+        Point firstPoint = p.x > centroid.x ? centroid : p;
+        Point secondPoint = p.x > centroid.x ? p : centroid;
+
+        double a = (secondPoint.y - firstPoint.y) / (secondPoint.x - firstPoint.x);
+
+        double angleInRadians = Math.atan(Math.abs(a));
+        double angleInDegrees = Math.toDegrees(angleInRadians);
+        if(pointOnRightSide) {
+            angleInDegrees = 180 - angleInDegrees;
+        }
+        return angleInDegrees;
     }
 }
