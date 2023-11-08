@@ -2,9 +2,9 @@ package com.example.skeletonization.impl;
 
 import org.opencv.core.Mat;
 
-import com.example.skeletonization.SkeletonizationInterface;
+import com.example.skeletonization.ISkeletonization;
 
-public class ZhangSuenSkeletonization implements SkeletonizationInterface{
+public class ZhangSuenISkeletonization implements ISkeletonization {
 
     @Override
     public Mat skeletonize(Mat inputMat) {

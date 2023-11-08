@@ -9,9 +9,9 @@ import org.opencv.core.MatOfPoint;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
-import com.example.contourization.ContourizationInterface;
+import com.example.contourization.IContourization;
 
-public class BiggestContourFinder implements ContourizationInterface{
+public class BiggestContourFinder implements IContourization {
 
     @Override
     public Mat findBiggestContour(Mat inputMat) {
@@ -28,7 +28,8 @@ public class BiggestContourFinder implements ContourizationInterface{
                 maxValIndex = contourIndex;
             }
         }
-        Mat canvas = Mat.zeros(inputMat.size(), CvType.CV_8UC3);
+        // Mat canvas = Mat.zeros(inputMat.size(), CvType.CV_8UC3);
+        Mat canvas = Mat.zeros(inputMat.size(), CvType.CV_32F);
         Imgproc.drawContours(canvas, contours, maxValIndex, new Scalar(255, 255, 255), 1);
         // Mat biggestContour = contours.get(maxValIndex);
         // Mat grayscaledBiggestContour = new Mat();
