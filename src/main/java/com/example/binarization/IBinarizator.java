@@ -6,5 +6,5 @@ import org.opencv.core.Scalar;
 import java.awt.image.BufferedImage;
 
 public interface IBinarizator {
-    Mat convertBufferedImageToBinarizedMat(BufferedImage originalBufferedImage, Scalar minThreshold, Scalar maxThreshold) ;
+    Mat convertBufferedImageToBinarizedMat(BufferedImage originalBufferedImage, Scalar minThreshold, Scalar maxThreshold);
 }
