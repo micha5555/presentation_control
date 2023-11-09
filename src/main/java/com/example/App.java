@@ -2,11 +2,18 @@ package com.example;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.Map;
 
 import com.example.binarization.IBinarizator;
 import com.example.binarization.impl.Binarizator;
+import com.example.contourizer.IContourizer;
+import com.example.contourizer.impl.Contourizer;
 import com.example.converters.IConverter;
 import com.example.converters.impl.Converter;
+import com.example.fingerFinder.IFingerFinder;
+import com.example.fingerFinder.impl.FingerFinder;
+import com.example.matProcessor.IMatProcessor;
+import com.example.matProcessor.impl.MatProcessor;
 import org.bytedeco.javacv.Frame;
 import org.bytedeco.javacv.Java2DFrameConverter;
 import org.bytedeco.javacv.OpenCVFrameConverter;
@@ -31,6 +38,9 @@ public class App extends Application
 {
     static IBinarizator binarizator;
     static IConverter converter;
+    static IContourizer contourizer;
+    static IFingerFinder fingerFinder;
+    static IMatProcessor matProcessor;
     // blue glove
     static Scalar minThresholdScalar = new Scalar(90, 0, 0);//BGR-A
     static Scalar maxThresholdScalar = new Scalar(255, 100, 70);//BGR-A
@@ -68,6 +78,9 @@ public class App extends Application
     {
         binarizator = new Binarizator();
         converter = new Converter();
+        contourizer = new Contourizer();
+        fingerFinder = new FingerFinder(converter);
+        matProcessor = new MatProcessor();
         OpenCV.loadLocally();
 //        System.out.println(CommonUtils.countAngleBetweenPointAndLineWithOnlyY(new Point(0,1), new Point(1,0))); //expected : 45
 //        System.out.println(CommonUtils.countAngleBetweenPointAndLineWithOnlyY(new Point(0,1), new Point(0,0))); //expected : 90
@@ -156,12 +169,16 @@ public class App extends Application
                     if (frame != null) {
                         BufferedImage originalBufferedImage = converterBuffered.convert(frame);
                         Mat binarizedImageMat = null;
+                        Mat contourizedImageMat = null;
                         BufferedImage binarizedBufferedImage = null;
                         BufferedImage contouredBufferedImage = null;
+                        Map<Point, FingerNames> pointsToFingers = null;
                         if(delay == 0){
                             binarizedImageMat = binarizator.convertBufferedImageToBinarizedMat(originalBufferedImage, minThresholdScalar, maxThresholdScalar );
+                            contourizedImageMat = contourizer.findBiggestContour(binarizedImageMat);
                             binarizedBufferedImage = converter.convertMatToBufferedImage(binarizedImageMat);
-                            contouredBufferedImage = CommonUtils.convertMatToContourizedBufferedImage(binarizedImageMat);
+                            pointsToFingers = fingerFinder.retrieveFingersFromContour(contourizedImageMat);
+                            contouredBufferedImage = matProcessor.processFinalBufferedImage(converter, contourizedImageMat, pointsToFingers);
                         }
                         originalImage.setImage(CommonUtils.bufferedImageToFXImage(originalBufferedImage));
                         if(delay == 0) {

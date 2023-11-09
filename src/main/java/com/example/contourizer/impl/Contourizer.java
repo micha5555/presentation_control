@@ -1,4 +1,4 @@
-package com.example.contourization.impl;
+package com.example.contourizer.impl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,9 +9,9 @@ import org.opencv.core.MatOfPoint;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
-import com.example.contourization.IContourization;
+import com.example.contourizer.IContourizer;
 
-public class BiggestContourFinder implements IContourization {
+public class Contourizer implements IContourizer {
 
     @Override
     public Mat findBiggestContour(Mat inputMat) {

@@ -1,7 +1,5 @@
 package com.example;
 
-import com.example.contourization.IContourization;
-import com.example.contourization.impl.BiggestContourFinder;
 import com.example.converters.IConverter;
 import com.example.converters.impl.Converter;
 import javafx.scene.image.Image;
@@ -16,13 +14,13 @@ import java.awt.image.DataBufferByte;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class CommonUtils {
 
     private static IConverter converter = new Converter();
+
     public static ArrayList<File> listFilesForFolder(final File folder) {
         ArrayList<File> files = new ArrayList<File>();
         for (final File fileEntry : folder.listFiles()) {
@@ -34,86 +32,18 @@ public class CommonUtils {
         return files;
     }
 
-//    To do rozwalenia na drobniejsze metody
-    public static BufferedImage convertMatToContourizedBufferedImage(Mat binarizedImageMat) throws IOException {
-        IContourization ci = new BiggestContourFinder();
-        Mat biggestContourMat = ci.findBiggestContour(binarizedImageMat);
-        List<MatOfPoint> contourMat = new ArrayList<>();
-        MatOfPoint convexHull = findConvexHullPoints(biggestContourMat);
-        contourMat.add(convexHull);
-        Point centroid = findCentroid(convexHull);
-        List<Point> convexHullPoints = new ArrayList<>();
-        int realPoints = 0;
-        for(int i = 0; i < convexHull.toArray().length; i++) {
-            Point currentPoint = convexHull.toArray()[i];
-            if(currentPoint.y + 30 < centroid.y && !isPointToCloseToAnotherPoint(currentPoint, convexHullPoints)) {
-                convexHullPoints.add(currentPoint);
-                Imgproc.circle(biggestContourMat, currentPoint, 7, new Scalar(255, 0, 0), Imgproc.FILLED);
-                realPoints++;
-            }
+    public static MatOfPoint findConvexHullPoints(Mat input) {
+        MatOfPoint contour = converter.convertMatToMatOfPointNonEmptyPoints(input);
+        MatOfInt hull = new MatOfInt();
+        Imgproc.convexHull(contour, hull);
+        Point[] contourArray = contour.toArray();
+        Point[] hullPoints = new Point[hull.rows()];
+        List<Integer> hullContourIdxList = hull.toList();
+        for (int i = 0; i < hullContourIdxList.size(); i++) {
+            hullPoints[i] = contourArray[hullContourIdxList.get(i)];
         }
-        Map<Point, FingerNames> pointsToFinger = nameFingerTips(convexHullPoints, centroid);
-        List<Point> pointsToDraw = new ArrayList<>(pointsToFinger.keySet());
-        for(Point p : pointsToDraw) {
-            Imgproc.line(biggestContourMat, centroid, p, new Scalar(255, 0, 0), 3);
-            Imgproc.putText(biggestContourMat, pointsToFinger.get(p).toString(), p, 1, 2, new Scalar(255, 0, 0));
-        }
-//        System.out.println(realPoints);
-        Imgproc.circle(biggestContourMat, centroid, 10, new Scalar(255, 0, 0), Imgproc.FILLED);
-        Imgproc.drawContours(biggestContourMat, contourMat, 0, new Scalar(255, 0, 0));
 
-        return converter.convertMatToBufferedImage(biggestContourMat);
-    }
-
-    private static boolean isPointToCloseToAnotherPoint(Point currentPoint, List<Point> previousPoints) {
-//        TODO: przemyśleć
-        if(currentPoint == null || previousPoints == null) {
-            return true;
-        } else if(previousPoints.size() == 0) {
-            return false;
-        }
-        double smallestDistance = 0.0;
-        for(int i = 0; i < previousPoints.size(); i++) {
-            Point pointFromList = previousPoints.get(i);
-            double distanceBetweenPoints = countDistanceBetweenPoints(currentPoint, pointFromList);
-            if(i == 0) {
-                smallestDistance = distanceBetweenPoints;
-                continue;
-            }
-            if(distanceBetweenPoints < smallestDistance) {
-                smallestDistance = distanceBetweenPoints;
-            }
-        }
-        return smallestDistance < StaticData.MINIMAL_DISTANCE_BETWEEN_CONVEX_HULL_POINTS;
-    }
-
-    private static double countDistanceBetweenPoints(Point a, Point b) {
-        if(a == null || b == null) {
-            return 0;
-        }
-        return Math.sqrt(Math.pow((b.x - a.x), 2) + Math.pow((b.y - a.y), 2));
-    }
-
-    private static Map<Point, FingerNames> nameFingerTips(List<Point> points, Point centroid) {
-        Map<Point, FingerNames> pointToFinger = new HashMap<>();
-        for(Point p : points) {
-            // add logic when it is not finger or something
-            double angle = countAngleBetweenPointAndLineWithOnlyY(p, centroid);
-            if(angle >= 0 && angle <= 45) {
-                pointToFinger.put(p, FingerNames.THUMB);
-            } else if(angle > 45 && angle <= 80){
-                pointToFinger.put(p, FingerNames.INDEX);
-            } else if(angle > 80 && angle <= 100){
-                pointToFinger.put(p, FingerNames.MIDDLE);
-            } else if(angle > 100 && angle <= 130){
-                pointToFinger.put(p, FingerNames.RING);
-            } else if(angle > 130 && angle <= 170){
-                pointToFinger.put(p, FingerNames.PINKY);
-            }
-            System.out.println(angle);
-        }
-        System.out.println("");
-        return pointToFinger;
+        return new MatOfPoint(hullPoints);
     }
 
     public static BufferedImage processContourizedBufferedImage(BufferedImage contourizedBufferedImage) throws IOException {
@@ -158,44 +88,6 @@ public class CommonUtils {
         return matOfPoint;
     }
 
-    public static MatOfPoint convertMatToMatOfPointNonEmptyPoints(Mat input) {
-        MatOfPoint output = new MatOfPoint();
-        List<Point> points = new ArrayList<Point>();
-        for (int row = 0; row < input.rows(); row++) {
-            for (int col = 0; col < input.cols(); col++) {
-                double value = input.get(row, col)[0]; // Get the value at (row, col)
-                if (value != 0) {
-                    points.add(new Point(col, row));
-                }
-            }
-        }
-        output.fromList(points);
-        return output;
-    }
-
-    public static Mat findConvexHull(Mat input) {
-        List<MatOfPoint> hullList = new ArrayList<>();
-        hullList.add(findConvexHullPoints(input));
-        Mat drawing = Mat.zeros(input.size(), CvType.CV_8UC3);
-        Scalar color = new Scalar(255, 0, 0);
-        Imgproc.drawContours(drawing, hullList, 0, color );
-        return drawing;
-    }
-
-    public static MatOfPoint findConvexHullPoints(Mat input) {
-        MatOfPoint contour = convertMatToMatOfPointNonEmptyPoints(input);
-        MatOfInt hull = new MatOfInt();
-        Imgproc.convexHull(contour, hull);
-        Point[] contourArray = contour.toArray();
-        Point[] hullPoints = new Point[hull.rows()];
-        List<Integer> hullContourIdxList = hull.toList();
-        for (int i = 0; i < hullContourIdxList.size(); i++) {
-            hullPoints[i] = contourArray[hullContourIdxList.get(i)];
-        }
-
-        return new MatOfPoint(hullPoints);
-    }
-
     public static Point findCentroid(MatOfPoint points) {
         if(points == null) {
             return null;
@@ -210,20 +102,5 @@ public class CommonUtils {
         }
 
         return new Point(xSum/pointsList.size(), ySum/pointsList.size());
-    }
-
-    public static double countAngleBetweenPointAndLineWithOnlyY(Point p, Point centroid) {
-        boolean pointOnRightSide = p.x > centroid.x;
-        Point firstPoint = p.x > centroid.x ? centroid : p;
-        Point secondPoint = p.x > centroid.x ? p : centroid;
-
-        double a = (secondPoint.y - firstPoint.y) / (secondPoint.x - firstPoint.x);
-
-        double angleInRadians = Math.atan(Math.abs(a));
-        double angleInDegrees = Math.toDegrees(angleInRadians);
-        if(pointOnRightSide) {
-            angleInDegrees = 180 - angleInDegrees;
-        }
-        return angleInDegrees;
     }
 }
