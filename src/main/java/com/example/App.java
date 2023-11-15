@@ -1,7 +1,12 @@
 package com.example;
 
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.example.binarization.IBinarizator;
@@ -14,13 +19,15 @@ import com.example.fingerFinder.IFingerFinder;
 import com.example.fingerFinder.impl.FingerFinder;
 import com.example.matProcessor.IMatProcessor;
 import com.example.matProcessor.impl.MatProcessor;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import org.bytedeco.javacv.Frame;
 import org.bytedeco.javacv.Java2DFrameConverter;
 import org.bytedeco.javacv.OpenCVFrameConverter;
 import org.bytedeco.javacv.OpenCVFrameGrabber;
-import org.opencv.core.Mat;
-import org.opencv.core.Scalar;
-import org.opencv.core.Point;
+import org.opencv.core.*;
 
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
@@ -33,6 +40,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import nu.pattern.OpenCV;
+import org.opencv.imgproc.Imgproc;
 
 public class App extends Application
 {
@@ -67,6 +75,10 @@ public class App extends Application
     VBox maxBlue;
     Text currentMinRGBThreshold = new Text();
     Text currentMaxRGBThreshold = new Text();
+
+    Button saveToFile = new Button("Save to file");
+    CheckBox showProportions = new CheckBox("Show proportions");
+    List<Double> proportions = new ArrayList<>();
 
     OpenCVFrameGrabber camera;
     Java2DFrameConverter converterBuffered;
@@ -124,7 +136,29 @@ public class App extends Application
         maxThreshold.setLayoutX(540);
         maxThreshold.setLayoutY(350);
 
-        Group root = new Group(originalImage, binarizedImage, contourImage, minThreshold, maxThreshold);
+        saveToFile.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                try {
+                    File myObj = new File("./surface_area_proportions_above_centroid/fingers_exist.txt");
+                    if (myObj.createNewFile()) {
+                        System.out.println("File created: " + myObj.getName());
+                        FileWriter myWriter = new FileWriter("./surface_area_proportions_above_centroid/fingers_exist.txt");
+                        for(double v : proportions) {
+                            myWriter.write(v + "\n");
+                        }
+                        myWriter.close();
+                    } else {
+                        System.out.println("File already exists.");
+                    }
+                } catch (IOException e) {
+                    System.out.println("An error occurred.");
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        Group root = new Group(originalImage, binarizedImage, contourImage, minThreshold, maxThreshold, showProportions, saveToFile);
         Scene scene = new Scene(root, 2000, 800);
         primaryStage.setScene(scene);
         primaryStage.show();
@@ -163,6 +197,7 @@ public class App extends Application
     private void captureAndDisplayFrames() {
         new Thread(() -> {
             int delay = 0;
+
             while (!Thread.interrupted()) {
                 try {
                     Frame frame = camera.grab(); // Capture a frame from the webcam
@@ -176,8 +211,54 @@ public class App extends Application
                         if(delay == 0){
                             binarizedImageMat = binarizator.convertBufferedImageToBinarizedMat(originalBufferedImage, minThresholdScalar, maxThresholdScalar );
                             contourizedImageMat = contourizer.findBiggestContour(binarizedImageMat);
+                            Point centroid = CommonUtils.findCentroid(converter.convertMatToMatOfPointNonEmptyPoints(contourizedImageMat));
+
+
                             binarizedBufferedImage = converter.convertMatToBufferedImage(binarizedImageMat);
-                            pointsToFingers = fingerFinder.retrieveFingersFromContour(contourizedImageMat);
+
+                            Point[] rectanglePoints = CommonUtils.findBiggestRectangleOnHand(contourizedImageMat);
+                            int paintedPointsAboveCentroid = CommonUtils.countPaintedPoints(binarizedImageMat, rectanglePoints[0], new Point(rectanglePoints[1].x, centroid.y));
+//                                System.out.println("Painted points above centroid: " + paintedPointsAboveCentroid);
+//                                System.out.println("Surface area of rectangle: " + CommonUtils.countRectangleSurfaceArea(rectanglePoints));
+                            Point[] rectangleAboveCentroidPoints = new Point[2];
+                            rectangleAboveCentroidPoints[0] = new Point(rectanglePoints[0].x, rectanglePoints[0].y);
+                            rectangleAboveCentroidPoints[1] = new Point(rectanglePoints[1].x, centroid.y);
+                            if(paintedPointsAboveCentroid / CommonUtils.countRectangleSurfaceArea(rectangleAboveCentroidPoints) > 0.4) {
+                                pointsToFingers = fingerFinder.retrieveFingersFromContour(contourizedImageMat);
+                            } else {
+                                pointsToFingers = new HashMap<>();
+                            }
+
+                            Imgproc.rectangle (
+                                    contourizedImageMat,                    //Matrix obj of the image
+                                    rectanglePoints[0],        //p1
+                                    rectanglePoints[1],       //p2
+                                    new Scalar(255, 255, 255),     //Scalar object for color
+                                    5                          //Thickness of the line
+                            );
+//                            System.out.println();
+                            if(showProportions.isSelected()) {
+//                                int paintedPointsAboveCentroid = CommonUtils.countPaintedPoints(binarizedImageMat, rectanglePoints[0], new Point(rectanglePoints[1].x, centroid.y));
+//                                System.out.println("Painted points above centroid: " + paintedPointsAboveCentroid);
+//                                System.out.println("Surface area of rectangle: " + CommonUtils.countRectangleSurfaceArea(rectanglePoints));
+//                                Point[] rectangleAboveCentroidPoints = new Point[2];
+//                                rectangleAboveCentroidPoints[0] = new Point(rectanglePoints[0].x, rectanglePoints[0].y);
+//                                rectangleAboveCentroidPoints[1] = new Point(rectanglePoints[1].x, centroid.y);
+                                System.out.println(paintedPointsAboveCentroid / CommonUtils.countRectangleSurfaceArea(rectangleAboveCentroidPoints));
+                                proportions.add(paintedPointsAboveCentroid / CommonUtils.countRectangleSurfaceArea(rectangleAboveCentroidPoints));
+//                                System.out.println("Proporcja x/y: " + CommonUtils.countProportionsXtoY(rectanglePoints));
+//                                proportions.add(Core.countNonZero(binarizedImageMat) / CommonUtils.countRectangleSurfaceArea(rectanglePoints));
+//                                System.out.println(Core.countNonZero(binarizedImageMat) / CommonUtils.countRectangleSurfaceArea(rectanglePoints));
+//                                System.out.println(CommonUtils.countPaintedPoints(binarizedImageMat, rectanglePoints[0], rectanglePoints[1]));
+//                                System.out.println(CommonUtils.countSurfaceAreaOfContour(contourizedImageMat));
+//                                proportions.add(CommonUtils.countSurfaceAreaOfContour(contourizedImageMat) / CommonUtils.countRectangleSurfaceArea(rectanglePoints));
+                            }
+
+//                            if(showProportions.isSelected()) {
+////                                System.out.println("Proporcja x/y: " + CommonUtils.countProportionsXtoY(rectanglePoints));
+////                                proportions.add(CommonUtils.countProportionsXtoY(rectanglePoints));
+//                                proportions.add(CommonUtils.countSurfaceAreaOfContour(contourizedImageMat) / CommonUtils.countRectangleSurfaceArea(rectanglePoints));
+//                            }
                             contouredBufferedImage = matProcessor.processFinalBufferedImage(converter, contourizedImageMat, pointsToFingers);
                         }
                         originalImage.setImage(CommonUtils.bufferedImageToFXImage(originalBufferedImage));

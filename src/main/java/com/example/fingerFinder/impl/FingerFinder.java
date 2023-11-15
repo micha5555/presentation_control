@@ -26,6 +26,7 @@ public class FingerFinder implements IFingerFinder {
         MatOfPoint convexHull = CommonUtils.findConvexHullPoints(contourMat);
 //        contourMatOfPoint.add(convexHull);
         Point centroid = CommonUtils.findCentroid(convexHull);
+//        Point centroid = CommonUtils.findCentroid(converter.convertMatToMatOfPointNonEmptyPoints(contourMat));
         List<Point> convexHullPoints = new ArrayList<>();
         int realPoints = 0;
         for(int i = 0; i < convexHull.toArray().length; i++) {
@@ -56,9 +57,9 @@ public class FingerFinder implements IFingerFinder {
             } else if(angle > 130 && angle <= 170){
                 pointToFinger.put(p, FingerNames.PINKY);
             }
-            System.out.println(angle);
+//            System.out.println(angle);
         }
-        System.out.println("");
+//        System.out.println("");
         return pointToFinger;
     }
 
