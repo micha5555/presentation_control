@@ -94,9 +94,17 @@ public class CommonUtils {
         if(points == null) {
             return null;
         }
+//        Point[] rectanglePoints = CommonUtils.findBiggestRectangleOnHand(points);
+//        System.out.println("Rec p " + rectanglePoints[0].x + " " + rectanglePoints[0].y);
+//        System.out.println("Rec p2 " + rectanglePoints[1].x + " " + rectanglePoints[1].y);
+//        return new Point(rectanglePoints[0].x + (rectanglePoints[1].x - rectanglePoints[0].x)/2, rectanglePoints[0].y + (rectanglePoints[1].y - rectanglePoints[0].y)*0.75);
+//        if(points == null) {
+//            return null;
+//        }
         List<Point> pointsList = points.toList();
         double xSum = 0.0;
         double ySum = 0.0;
+//        double maxY
 
         for(Point p : pointsList) {
             xSum += p.x;
@@ -106,9 +114,9 @@ public class CommonUtils {
         return new Point(xSum/pointsList.size(), ySum/pointsList.size());
     }
 
-    public static Point[] findBiggestRectangleOnHand(Mat contourizedImageMat) {
-        MatOfPoint convexHull = CommonUtils.findConvexHullPoints(contourizedImageMat);
-        List<Point> convexHullPoints = convexHull.toList();
+    public static Point[] findBiggestRectangleOnHand(MatOfPoint contourizedImageMat) {
+//        MatOfPoint convexHull = CommonUtils.findConvexHullPoints(contourizedImageMat);
+        List<Point> convexHullPoints = contourizedImageMat.toList();
         Point leftTop = new Point(convexHullPoints.get(0).x, convexHullPoints.get(0).y); // (x, y)
         Point rightBot = new Point(convexHullPoints.get(0).x, convexHullPoints.get(0).y); // (x, y)
         for(Point p : convexHullPoints) {

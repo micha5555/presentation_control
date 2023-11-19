@@ -8,10 +8,7 @@ import com.example.fingerFinder.IFingerFinder;
 import org.opencv.core.*;
 import org.opencv.imgproc.Imgproc;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class FingerFinder implements IFingerFinder {
     private IConverter converter;
@@ -31,7 +28,7 @@ public class FingerFinder implements IFingerFinder {
         int realPoints = 0;
         for(int i = 0; i < convexHull.toArray().length; i++) {
             Point currentPoint = convexHull.toArray()[i];
-            if(currentPoint.y + 30 < centroid.y && !isPointToCloseToAnotherPoint(currentPoint, convexHullPoints)) {
+            if(currentPoint.y < centroid.y && !isPointToCloseToAnotherPoint(currentPoint, convexHullPoints)) {
                 convexHullPoints.add(currentPoint);
                 Imgproc.circle(contourMat, currentPoint, 7, new Scalar(255, 0, 0), Imgproc.FILLED);
                 realPoints++;
@@ -45,16 +42,17 @@ public class FingerFinder implements IFingerFinder {
         Map<Point, FingerNames> pointToFinger = new HashMap<>();
         for(Point p : points) {
             // add logic when it is not finger or something
+            Collection<FingerNames> addedFingers = pointToFinger.values();
             double angle = countAngleBetweenPointAndLineWithOnlyY(p, centroid);
-            if(angle >= 0 && angle <= 45) {
+            if(!addedFingers.contains(FingerNames.THUMB) && angle >= StaticData.MINIMAL_THUMB_ANGLE && angle <= StaticData.MAXIMAL_THUMB_ANGLE) {
                 pointToFinger.put(p, FingerNames.THUMB);
-            } else if(angle > 45 && angle <= 80){
+            } else if(!addedFingers.contains(FingerNames.INDEX) && angle > StaticData.MINIMAL_INDEX_ANGLE && angle <= StaticData.MAXIMAL_INDEX_ANGLE){
                 pointToFinger.put(p, FingerNames.INDEX);
-            } else if(angle > 80 && angle <= 100){
+            } else if(!addedFingers.contains(FingerNames.MIDDLE) && angle > StaticData.MINIMAL_MIDDLE_ANGLE && angle <= StaticData.MAXIMAL_MIDDLE_ANGLE){
                 pointToFinger.put(p, FingerNames.MIDDLE);
-            } else if(angle > 100 && angle <= 130){
+            } else if(!addedFingers.contains(FingerNames.RING) && angle > StaticData.MINIMAL_RING_ANGLE && angle <= StaticData.MAXIMAL_RING_ANGLE) {
                 pointToFinger.put(p, FingerNames.RING);
-            } else if(angle > 130 && angle <= 170){
+            } else if(!addedFingers.contains(FingerNames.PINKY) && angle > StaticData.MINIMAL_PINKY_ANGLE && angle <= StaticData.MAXIMAL_PINKY_ANGLE){
                 pointToFinger.put(p, FingerNames.PINKY);
             }
 //            System.out.println(angle);

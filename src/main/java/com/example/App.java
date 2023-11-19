@@ -1,14 +1,5 @@
 package com.example;
 
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.example.binarization.IBinarizator;
 import com.example.binarization.impl.Binarizator;
 import com.example.contourizer.IContourizer;
@@ -19,28 +10,40 @@ import com.example.fingerFinder.IFingerFinder;
 import com.example.fingerFinder.impl.FingerFinder;
 import com.example.matProcessor.IMatProcessor;
 import com.example.matProcessor.impl.MatProcessor;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import org.bytedeco.javacv.Frame;
-import org.bytedeco.javacv.Java2DFrameConverter;
-import org.bytedeco.javacv.OpenCVFrameConverter;
-import org.bytedeco.javacv.OpenCVFrameGrabber;
-import org.opencv.core.*;
-
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Slider;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import nu.pattern.OpenCV;
-import org.opencv.imgproc.Imgproc;
+import org.bytedeco.javacv.Frame;
+import org.bytedeco.javacv.Java2DFrameConverter;
+import org.bytedeco.javacv.OpenCVFrameConverter;
+import org.bytedeco.javacv.OpenCVFrameGrabber;
+import org.opencv.core.Mat;
+import org.opencv.core.MatOfPoint;
+import org.opencv.core.Point;
+import org.opencv.core.Scalar;
+
+import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class App extends Application
 {
@@ -88,17 +91,28 @@ public class App extends Application
     // static Scalar max= new Scalar(255, 250, 110);//BGR-A
     public static void main( String[] args ) throws IOException
     {
-        binarizator = new Binarizator();
-        converter = new Converter();
-        contourizer = new Contourizer();
-        fingerFinder = new FingerFinder(converter);
-        matProcessor = new MatProcessor();
-        OpenCV.loadLocally();
-//        System.out.println(CommonUtils.countAngleBetweenPointAndLineWithOnlyY(new Point(0,1), new Point(1,0))); //expected : 45
-//        System.out.println(CommonUtils.countAngleBetweenPointAndLineWithOnlyY(new Point(0,1), new Point(0,0))); //expected : 90
-//        System.out.println(CommonUtils.countAngleBetweenPointAndLineWithOnlyY(new Point(0,1), new Point(-1,0))); //expected : 135
-//        System.out.println(CommonUtils.countAngleBetweenPointAndLineWithOnlyY(new Point(0,1), new Point(0,2))); //expected : 0
-        launch();
+        try {
+            Robot robot = new Robot();
+
+            while(true) {
+                robot.keyPress(KeyEvent.VK_K);
+                robot.keyRelease(KeyEvent.VK_K);
+                Thread.sleep(1000);
+            }
+        } catch (AWTException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+//
+//        binarizator = new Binarizator();
+//        converter = new Converter();
+//        contourizer = new Contourizer();
+//        fingerFinder = new FingerFinder(converter);
+//        matProcessor = new MatProcessor();
+//        OpenCV.loadLocally();
+//        launch();
     }
 
     @Override
@@ -211,31 +225,39 @@ public class App extends Application
                         if(delay == 0){
                             binarizedImageMat = binarizator.convertBufferedImageToBinarizedMat(originalBufferedImage, minThresholdScalar, maxThresholdScalar );
                             contourizedImageMat = contourizer.findBiggestContour(binarizedImageMat);
-                            Point centroid = CommonUtils.findCentroid(converter.convertMatToMatOfPointNonEmptyPoints(contourizedImageMat));
 
+                            MatOfPoint convexHull = CommonUtils.findConvexHullPoints(contourizedImageMat);
+//                            Point centroid = CommonUtils.findCentroid(converter.convertMatToMatOfPointNonEmptyPoints(contourizedImageMat));
+                            Point centroid = CommonUtils.findCentroid(convexHull);
 
                             binarizedBufferedImage = converter.convertMatToBufferedImage(binarizedImageMat);
 
-                            Point[] rectanglePoints = CommonUtils.findBiggestRectangleOnHand(contourizedImageMat);
+                            Point[] rectanglePoints = CommonUtils.findBiggestRectangleOnHand(convexHull);
+                            System.out.println("Rectangle points: ");
+                            System.out.println(rectanglePoints[0]);
+                            System.out.println(rectanglePoints[1]);
+                            System.out.println("Centroid: ");
+                            System.out.println(centroid.x + " " + centroid.y);
                             int paintedPointsAboveCentroid = CommonUtils.countPaintedPoints(binarizedImageMat, rectanglePoints[0], new Point(rectanglePoints[1].x, centroid.y));
+                            System.out.println("Painted points above centroid: " + paintedPointsAboveCentroid);
 //                                System.out.println("Painted points above centroid: " + paintedPointsAboveCentroid);
 //                                System.out.println("Surface area of rectangle: " + CommonUtils.countRectangleSurfaceArea(rectanglePoints));
                             Point[] rectangleAboveCentroidPoints = new Point[2];
                             rectangleAboveCentroidPoints[0] = new Point(rectanglePoints[0].x, rectanglePoints[0].y);
                             rectangleAboveCentroidPoints[1] = new Point(rectanglePoints[1].x, centroid.y);
-                            if(paintedPointsAboveCentroid / CommonUtils.countRectangleSurfaceArea(rectangleAboveCentroidPoints) > 0.4) {
+                            if(paintedPointsAboveCentroid / CommonUtils.countRectangleSurfaceArea(rectangleAboveCentroidPoints) > 0.35) {
                                 pointsToFingers = fingerFinder.retrieveFingersFromContour(contourizedImageMat);
                             } else {
                                 pointsToFingers = new HashMap<>();
                             }
 
-                            Imgproc.rectangle (
-                                    contourizedImageMat,                    //Matrix obj of the image
-                                    rectanglePoints[0],        //p1
-                                    rectanglePoints[1],       //p2
-                                    new Scalar(255, 255, 255),     //Scalar object for color
-                                    5                          //Thickness of the line
-                            );
+//                            Imgproc.rectangle (
+//                                    contourizedImageMat,                    //Matrix obj of the image
+//                                    rectanglePoints[0],        //p1
+//                                    rectanglePoints[1],       //p2
+//                                    new Scalar(255, 255, 255),     //Scalar object for color
+//                                    5                          //Thickness of the line
+//                            );
 //                            System.out.println();
                             if(showProportions.isSelected()) {
 //                                int paintedPointsAboveCentroid = CommonUtils.countPaintedPoints(binarizedImageMat, rectanglePoints[0], new Point(rectanglePoints[1].x, centroid.y));
