@@ -7,6 +7,8 @@ import com.example.fingersToKeyConverter.impl.FingersToKeyConverter;
 import org.opencv.core.Point;
 
 import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.util.Collection;
 import java.util.Map;
 
 public class KeyClicker implements IKeyClicker {
@@ -25,6 +27,15 @@ public class KeyClicker implements IKeyClicker {
     @Override
     public void clickKeyBasedOnFingers(Map<Point, FingerNames> fingersMap) {
         Integer key = fingersToKeyConverter.convertFingersToKey(fingersMap);
+
+        Collection<FingerNames> fingers = fingersMap.values();
+        if(fingers.size() == 1 && fingers.contains(FingerNames.MIDDLE)) {
+            robot.keyPress(KeyEvent.VK_ALT);
+            robot.keyPress(KeyEvent.VK_F4);
+            robot.keyRelease(KeyEvent.VK_ALT);
+            robot.keyRelease(KeyEvent.VK_F4);
+            return;
+        }
         if(key != null) {
             robot.keyPress(key);
             robot.keyRelease(key);
