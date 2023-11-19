@@ -9,5 +9,5 @@ import java.util.Map;
 
 public interface IFingersToKeyConverter {
     Map<Integer, List<FingerNames>> fingersToKeyMap = null;
-    Integer convertFingersToKey(Map<Point, FingerNames> fingersMap);
+    List<Integer> convertFingersToKey(Map<Point, FingerNames> fingersMap);
 }
