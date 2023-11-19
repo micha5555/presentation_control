@@ -12,4 +12,15 @@ public class StaticData {
     public static final int FRAMES_DELAY = 30;
 
     public static final int MINIMAL_DISTANCE_BETWEEN_CONVEX_HULL_POINTS = 25;
+
+    public static final int MINIMAL_THUMB_ANGLE = 0;
+    public static final int MAXIMAL_THUMB_ANGLE = 45;
+    public static final int MINIMAL_INDEX_ANGLE = 46;
+    public static final int MAXIMAL_INDEX_ANGLE = 80;
+    public static final int MINIMAL_MIDDLE_ANGLE = 81;
+    public static final int MAXIMAL_MIDDLE_ANGLE = 100;
+    public static final int MINIMAL_RING_ANGLE = 101;
+    public static final int MAXIMAL_RING_ANGLE = 120;
+    public static final int MINIMAL_PINKY_ANGLE = 121;
+    public static final int MAXIMAL_PINKY_ANGLE = 155;
 }

@@ -24,6 +24,7 @@ public class MatProcessor implements IMatProcessor {
         contourMat.add(convexHull);
         List<Point> pointsToDraw = new ArrayList<>(pointsToFingers.keySet());
         Point centroid = CommonUtils.findCentroid(convexHull);
+//        Point centroid = CommonUtils.findCentroid(converter.convertMatToMatOfPointNonEmptyPoints(biggestContourMat));
         for(Point p : pointsToDraw) {
             Imgproc.line(biggestContourMat, centroid, p, new Scalar(255, 0, 0), 3);
             Imgproc.putText(biggestContourMat, pointsToFingers.get(p).toString(), p, 1, 2, new Scalar(255, 0, 0));

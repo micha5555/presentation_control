@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static org.opencv.imgproc.Imgproc.contourArea;
+
 public class CommonUtils {
 
     private static IConverter converter = new Converter();
@@ -46,17 +48,17 @@ public class CommonUtils {
         return new MatOfPoint(hullPoints);
     }
 
-    public static BufferedImage processContourizedBufferedImage(BufferedImage contourizedBufferedImage) throws IOException {
-        Mat biggestContourMat = convertBufferedImageToMat(contourizedBufferedImage);
-
-        List<MatOfPoint> contourMat = new ArrayList<>();
-        MatOfPoint convexHull = CommonUtils.findConvexHullPoints(biggestContourMat);
-        contourMat.add(convexHull);
-        Point centroid = CommonUtils.findCentroid(convexHull);
-        Imgproc.circle(biggestContourMat, centroid, 5, new Scalar(0, 0, 255), Imgproc.FILLED);
-        Imgproc.drawContours(biggestContourMat, contourMat, 0, new Scalar(255, 0, 0));
-        return converter.convertMatToBufferedImage(biggestContourMat);
-    }
+//    public static BufferedImage processContourizedBufferedImage(BufferedImage contourizedBufferedImage) throws IOException {
+//        Mat biggestContourMat = convertBufferedImageToMat(contourizedBufferedImage);
+//
+//        List<MatOfPoint> contourMat = new ArrayList<>();
+//        MatOfPoint convexHull = CommonUtils.findConvexHullPoints(biggestContourMat);
+//        contourMat.add(convexHull);
+//        Point centroid = CommonUtils.findCentroid(convexHull);
+//        Imgproc.circle(biggestContourMat, centroid, 5, new Scalar(0, 0, 255), Imgproc.FILLED);
+//        Imgproc.drawContours(biggestContourMat, contourMat, 0, new Scalar(255, 0, 0));
+//        return converter.convertMatToBufferedImage(biggestContourMat);
+//    }
 
     public static Mat convertBufferedImageToMat(BufferedImage bufferedImage) {
         Mat mat = new Mat(bufferedImage.getHeight(), bufferedImage.getWidth(), CvType.CV_8UC3);
@@ -92,9 +94,17 @@ public class CommonUtils {
         if(points == null) {
             return null;
         }
+//        Point[] rectanglePoints = CommonUtils.findBiggestRectangleOnHand(points);
+//        System.out.println("Rec p " + rectanglePoints[0].x + " " + rectanglePoints[0].y);
+//        System.out.println("Rec p2 " + rectanglePoints[1].x + " " + rectanglePoints[1].y);
+//        return new Point(rectanglePoints[0].x + (rectanglePoints[1].x - rectanglePoints[0].x)/2, rectanglePoints[0].y + (rectanglePoints[1].y - rectanglePoints[0].y)*0.75);
+//        if(points == null) {
+//            return null;
+//        }
         List<Point> pointsList = points.toList();
         double xSum = 0.0;
         double ySum = 0.0;
+//        double maxY
 
         for(Point p : pointsList) {
             xSum += p.x;
@@ -102,5 +112,80 @@ public class CommonUtils {
         }
 
         return new Point(xSum/pointsList.size(), ySum/pointsList.size());
+    }
+
+    public static Point[] findBiggestRectangleOnHand(MatOfPoint contourizedImageMat) {
+//        MatOfPoint convexHull = CommonUtils.findConvexHullPoints(contourizedImageMat);
+        List<Point> convexHullPoints = contourizedImageMat.toList();
+        Point leftTop = new Point(convexHullPoints.get(0).x, convexHullPoints.get(0).y); // (x, y)
+        Point rightBot = new Point(convexHullPoints.get(0).x, convexHullPoints.get(0).y); // (x, y)
+        for(Point p : convexHullPoints) {
+//            System.out.println("Point: " + p);
+            if(p.x < leftTop.x) {
+//                System.out.println("setting leftTop x");
+                leftTop.x = p.x;
+            }
+            if(p.x > rightBot.x) {
+//                System.out.println("setting rightBot x");
+                rightBot.x = p.x;
+            }
+            if(p.y < leftTop.y) {
+//                System.out.println("setting leftTop y");
+                leftTop.y = p.y;
+            }
+            if(p.y > rightBot.y) {
+//                System.out.println("setting rightBot y");
+                rightBot.y = p.y;
+            }
+        }
+
+        return new Point[]{leftTop, rightBot};
+    }
+
+    public static double countProportionsXtoY(Point[] points) {
+        return (points[1].x - points[0].x) / (points[1].y - points[0].y);
+    }
+
+    public static double countSurfaceAreaOfContour(Mat contourMat) {
+//        System.out.println(contourMat.depth() == CvType.CV_32F || contourMat.depth() == CvType.CV_32S);
+//        System.out.println(contourMat.total());
+//        contourMat.convertTo(contourMat, CvType.CV_32S);
+        IConverter converter = new Converter();
+        MatOfPoint contour = converter.convertMatToMatOfPointNonEmptyPoints(contourMat);
+        double surfaceArea = Imgproc.contourArea(contour);
+        System.out.println("Contour surface area: " + surfaceArea);
+        return surfaceArea;
+    }
+
+    public static double countRectangleSurfaceArea(Point[] points) {
+        double surfaceArea = (points[1].x - points[0].x) * (points[1].y - points[0].y);
+        System.out.println("Rectangle surface area: " + surfaceArea);
+        return surfaceArea;
+    }
+
+    public static double countRectangleCircuit(Point[] points) {
+        double circuit = 2 * (points[1].x - points[0].x) + 2 * (points[1].y - points[0].y);
+        System.out.println("Rectangle circuit: " + circuit);
+        return circuit;
+    }
+
+    public static int countPaintedPoints(Mat binaryImage, Point topLeft, Point bottomRight) {
+        // Create a region of interest (ROI) based on the rectangle
+        Rect roi = new Rect(topLeft, bottomRight);
+
+        // Extract the ROI from the binary image
+        Mat roiImage = new Mat(binaryImage, roi);
+
+        // Count the non-zero pixels in the ROI
+        int paintedPointsCount = (int) roiImage.total() - Core.countNonZero(roiImage);
+
+        // Release the ROI image to avoid memory leaks
+        roiImage.release();
+
+        return paintedPointsCount;
+    }
+
+    public static double countLengthOfLine(Point p1, Point p2) {
+        return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
     }
 }
