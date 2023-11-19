@@ -3,12 +3,13 @@ package com.example.clicker.impl;
 import com.example.FingerNames;
 import com.example.clicker.IKeyClicker;
 import com.example.fingersToKeyConverter.IFingersToKeyConverter;
-import com.example.fingersToKeyConverter.impl.FingersToKeyConverter;
 import org.opencv.core.Point;
+
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 public class KeyClicker implements IKeyClicker {
@@ -26,7 +27,7 @@ public class KeyClicker implements IKeyClicker {
     }
     @Override
     public void clickKeyBasedOnFingers(Map<Point, FingerNames> fingersMap) {
-        Integer key = fingersToKeyConverter.convertFingersToKey(fingersMap);
+        List<Integer> keys = fingersToKeyConverter.convertFingersToKey(fingersMap);
 
         Collection<FingerNames> fingers = fingersMap.values();
         if(fingers.size() == 1 && fingers.contains(FingerNames.MIDDLE)) {
@@ -36,13 +37,17 @@ public class KeyClicker implements IKeyClicker {
             robot.keyRelease(KeyEvent.VK_F4);
             return;
         }
-        if(key != null) {
-            robot.keyPress(key);
-            robot.keyRelease(key);
-            System.out.println("Key pressed: " + key);
+        if(keys != null && keys.size() > 1) {
+            for(Integer key : keys) {
+                robot.keyPress(key);
+            }
+            for(Integer key : keys) {
+                robot.keyRelease(key);
+            }
+            System.out.println("Key(s) pressed: " + keys);
         }
         else {
-            System.out.println("No key pressed, based on finfers: " + fingersMap.values() + "");
+            System.out.println("No keys pressed, based on fingers: " + fingersMap.values() + "");
         }
     }
 }
