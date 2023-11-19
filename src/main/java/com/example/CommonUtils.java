@@ -163,6 +163,12 @@ public class CommonUtils {
         return surfaceArea;
     }
 
+    public static double countRectangleCircuit(Point[] points) {
+        double circuit = 2 * (points[1].x - points[0].x) + 2 * (points[1].y - points[0].y);
+        System.out.println("Rectangle circuit: " + circuit);
+        return circuit;
+    }
+
     public static int countPaintedPoints(Mat binaryImage, Point topLeft, Point bottomRight) {
         // Create a region of interest (ROI) based on the rectangle
         Rect roi = new Rect(topLeft, bottomRight);
@@ -177,5 +183,9 @@ public class CommonUtils {
         roiImage.release();
 
         return paintedPointsCount;
+    }
+
+    public static double countLengthOfLine(Point p1, Point p2) {
+        return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
     }
 }

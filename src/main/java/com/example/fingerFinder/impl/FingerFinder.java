@@ -34,13 +34,17 @@ public class FingerFinder implements IFingerFinder {
                 realPoints++;
             }
         }
-        Map<Point, FingerNames> pointsToFinger = nameFingerTips(convexHullPoints, centroid);
+        Point[] rectangleOnHand = CommonUtils.findBiggestRectangleOnHand(convexHull);
+        Map<Point, FingerNames> pointsToFinger = nameFingerTips(convexHullPoints, centroid, rectangleOnHand);
         return pointsToFinger;
     }
 
-    private static Map<Point, FingerNames> nameFingerTips(List<Point> points, Point centroid) {
+    private static Map<Point, FingerNames> nameFingerTips(List<Point> points, Point centroid, Point[] rectangleOnHand) {
         Map<Point, FingerNames> pointToFinger = new HashMap<>();
         for(Point p : points) {
+            if(CommonUtils.countRectangleCircuit(rectangleOnHand) / CommonUtils.countLengthOfLine(p, centroid) > 9) {
+                continue;
+            }
             // add logic when it is not finger or something
             Collection<FingerNames> addedFingers = pointToFinger.values();
             double angle = countAngleBetweenPointAndLineWithOnlyY(p, centroid);

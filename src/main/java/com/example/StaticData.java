@@ -9,7 +9,7 @@ public class StaticData {
     public static final int MAX_GREEN_SLIDER = 100;
     public static final int MAX_BLUE_SLIDER = 255;
 
-    public static final int FRAMES_DELAY = 10;
+    public static final int FRAMES_DELAY = 30;
 
     public static final int MINIMAL_DISTANCE_BETWEEN_CONVEX_HULL_POINTS = 25;
 
@@ -20,7 +20,7 @@ public class StaticData {
     public static final int MINIMAL_MIDDLE_ANGLE = 81;
     public static final int MAXIMAL_MIDDLE_ANGLE = 100;
     public static final int MINIMAL_RING_ANGLE = 101;
-    public static final int MAXIMAL_RING_ANGLE = 130;
-    public static final int MINIMAL_PINKY_ANGLE = 131;
-    public static final int MAXIMAL_PINKY_ANGLE = 165;
+    public static final int MAXIMAL_RING_ANGLE = 120;
+    public static final int MINIMAL_PINKY_ANGLE = 121;
+    public static final int MAXIMAL_PINKY_ANGLE = 155;
 }
