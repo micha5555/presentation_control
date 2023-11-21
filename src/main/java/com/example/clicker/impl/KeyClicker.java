@@ -30,13 +30,6 @@ public class KeyClicker implements IKeyClicker {
         List<Integer> keys = fingersToKeyConverter.convertFingersToKey(fingersMap);
 
         Collection<FingerNames> fingers = fingersMap.values();
-        if(fingers.size() == 1 && fingers.contains(FingerNames.MIDDLE)) {
-            robot.keyPress(KeyEvent.VK_ALT);
-            robot.keyPress(KeyEvent.VK_F4);
-            robot.keyRelease(KeyEvent.VK_ALT);
-            robot.keyRelease(KeyEvent.VK_F4);
-            return;
-        }
         if(keys != null && keys.size() > 1) {
             for(Integer key : keys) {
                 robot.keyPress(key);
