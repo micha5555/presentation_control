@@ -1,3 +1,4 @@
 [f5]:[THUMB,INDEX,MIDDLE] #start presenting in document viewer
+[alt,f4]:[MIDDLE] #close window
 [right]:[INDEX,MIDDLE,RING] #next slide
 [left]:[INDEX,PINKY] #previous slide

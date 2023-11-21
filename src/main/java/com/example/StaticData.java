@@ -1,5 +1,11 @@
 package com.example;
 
+import java.awt.event.KeyEvent;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class StaticData {
     // blue glove BGR: (90, 0, 0) - (255, 100, 70)
     public static final int MIN_RED_SLIDER = 0;
@@ -23,4 +29,12 @@ public class StaticData {
     public static final int MAXIMAL_RING_ANGLE = 120;
     public static final int MINIMAL_PINKY_ANGLE = 121;
     public static final int MAXIMAL_PINKY_ANGLE = 155;
+    public static final String FINGERS_TO_KEYS_FILE_PATH = "./fingers_to_keys.txt";
+    public static final Map<List<Integer>, List<FingerNames>> DEFAULT_FINGERS_TO_KEYS_MAP = new HashMap<List<Integer>, List<FingerNames>>() {
+        {
+            put(Arrays.asList(KeyEvent.VK_RIGHT), Arrays.asList(FingerNames.INDEX, FingerNames.MIDDLE, FingerNames.RING));
+            put(Arrays.asList(KeyEvent.VK_LEFT), Arrays.asList(FingerNames.INDEX, FingerNames.PINKY));
+            put(Arrays.asList(KeyEvent.VK_F5), Arrays.asList(FingerNames.THUMB, FingerNames.INDEX, FingerNames.MIDDLE));
+        }
+    };
 }

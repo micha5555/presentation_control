@@ -10,6 +10,7 @@ import com.example.converters.IConverter;
 import com.example.converters.impl.Converter;
 import com.example.fingerFinder.IFingerFinder;
 import com.example.fingerFinder.impl.FingerFinder;
+import com.example.fingersToKeyConverter.IFingersToKeyConverter;
 import com.example.fingersToKeyConverter.impl.FingersToKeyConverter;
 import com.example.matProcessor.IMatProcessor;
 import com.example.matProcessor.impl.MatProcessor;
@@ -62,12 +63,13 @@ public class App extends Application
     OpenCVFrameConverter.ToMat opencvConverter;
     public static void main( String[] args ) throws IOException
     {
-        binarizator = new Binarizator();
-        converter = new Converter();
-        contourizer = new Contourizer();
-        fingerFinder = new FingerFinder(converter);
-        matProcessor = new MatProcessor();
-        keyClicker = new KeyClicker(new FingersToKeyConverter());
+//        binarizator = new Binarizator();
+//        converter = new Converter();
+//        contourizer = new Contourizer();
+//        fingerFinder = new FingerFinder(converter);
+//        matProcessor = new MatProcessor();
+//        keyClicker = new KeyClicker(new FingersToKeyConverter());
+        IFingersToKeyConverter ff = new FingersToKeyConverter();
         OpenCV.loadLocally();
         launch();
     }
