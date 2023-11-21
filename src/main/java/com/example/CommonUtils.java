@@ -12,19 +12,15 @@ import org.opencv.imgproc.Imgproc;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-
-import static org.opencv.imgproc.Imgproc.contourArea;
 
 public class CommonUtils {
 
     private static IConverter converter = new Converter();
 
     public static ArrayList<File> listFilesForFolder(final File folder) {
-        ArrayList<File> files = new ArrayList<File>();
+        ArrayList<File> files = new ArrayList<>();
         for (final File fileEntry : folder.listFiles()) {
             if (fileEntry.isDirectory()) {
                 continue;
@@ -48,18 +44,6 @@ public class CommonUtils {
         return new MatOfPoint(hullPoints);
     }
 
-//    public static BufferedImage processContourizedBufferedImage(BufferedImage contourizedBufferedImage) throws IOException {
-//        Mat biggestContourMat = convertBufferedImageToMat(contourizedBufferedImage);
-//
-//        List<MatOfPoint> contourMat = new ArrayList<>();
-//        MatOfPoint convexHull = CommonUtils.findConvexHullPoints(biggestContourMat);
-//        contourMat.add(convexHull);
-//        Point centroid = CommonUtils.findCentroid(convexHull);
-//        Imgproc.circle(biggestContourMat, centroid, 5, new Scalar(0, 0, 255), Imgproc.FILLED);
-//        Imgproc.drawContours(biggestContourMat, contourMat, 0, new Scalar(255, 0, 0));
-//        return converter.convertMatToBufferedImage(biggestContourMat);
-//    }
-
     public static Mat convertBufferedImageToMat(BufferedImage bufferedImage) {
         Mat mat = new Mat(bufferedImage.getHeight(), bufferedImage.getWidth(), CvType.CV_8UC3);
         byte[] data = ((DataBufferByte) bufferedImage.getRaster().getDataBuffer()).getData();
@@ -82,13 +66,13 @@ public class CommonUtils {
         return new ImageView(wr).getImage();
     }
 
-    public static MatOfPoint matToMatOfPoint(Mat mat) {
-        MatOfPoint matOfPoint = new MatOfPoint();
-        MatOfPoint2f matOfPoint2f = new MatOfPoint2f();
-        mat.convertTo(matOfPoint2f, CvType.CV_32F);
-        matOfPoint2f.convertTo(matOfPoint, CvType.CV_32S);
-        return matOfPoint;
-    }
+//    public static MatOfPoint matToMatOfPoint(Mat mat) {
+//        MatOfPoint matOfPoint = new MatOfPoint();
+//        MatOfPoint2f matOfPoint2f = new MatOfPoint2f();
+//        mat.convertTo(matOfPoint2f, CvType.CV_32F);
+//        matOfPoint2f.convertTo(matOfPoint, CvType.CV_32S);
+//        return matOfPoint;
+//    }
 
     public static Point findCentroid(MatOfPoint points) {
         if(points == null) {
@@ -120,21 +104,16 @@ public class CommonUtils {
         Point leftTop = new Point(convexHullPoints.get(0).x, convexHullPoints.get(0).y); // (x, y)
         Point rightBot = new Point(convexHullPoints.get(0).x, convexHullPoints.get(0).y); // (x, y)
         for(Point p : convexHullPoints) {
-//            System.out.println("Point: " + p);
             if(p.x < leftTop.x) {
-//                System.out.println("setting leftTop x");
                 leftTop.x = p.x;
             }
             if(p.x > rightBot.x) {
-//                System.out.println("setting rightBot x");
                 rightBot.x = p.x;
             }
             if(p.y < leftTop.y) {
-//                System.out.println("setting leftTop y");
                 leftTop.y = p.y;
             }
             if(p.y > rightBot.y) {
-//                System.out.println("setting rightBot y");
                 rightBot.y = p.y;
             }
         }
@@ -147,9 +126,6 @@ public class CommonUtils {
     }
 
     public static double countSurfaceAreaOfContour(Mat contourMat) {
-//        System.out.println(contourMat.depth() == CvType.CV_32F || contourMat.depth() == CvType.CV_32S);
-//        System.out.println(contourMat.total());
-//        contourMat.convertTo(contourMat, CvType.CV_32S);
         IConverter converter = new Converter();
         MatOfPoint contour = converter.convertMatToMatOfPointNonEmptyPoints(contourMat);
         double surfaceArea = Imgproc.contourArea(contour);
