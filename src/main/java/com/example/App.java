@@ -63,13 +63,13 @@ public class App extends Application
     OpenCVFrameConverter.ToMat opencvConverter;
     public static void main( String[] args ) throws IOException
     {
-//        binarizator = new Binarizator();
-//        converter = new Converter();
-//        contourizer = new Contourizer();
-//        fingerFinder = new FingerFinder(converter);
-//        matProcessor = new MatProcessor();
-//        keyClicker = new KeyClicker(new FingersToKeyConverter());
-        IFingersToKeyConverter ff = new FingersToKeyConverter();
+        binarizator = new Binarizator();
+        converter = new Converter();
+        contourizer = new Contourizer();
+        fingerFinder = new FingerFinder(converter);
+        matProcessor = new MatProcessor();
+        keyClicker = new KeyClicker(new FingersToKeyConverter());
+//        IFingersToKeyConverter ff = new FingersToKeyConverter();
         OpenCV.loadLocally();
         launch();
     }
@@ -151,7 +151,10 @@ public class App extends Application
 
             while (!Thread.interrupted()) {
                 try {
-                    Frame frame = camera.grab(); // Capture a frame from the webcam
+                    Frame frame = camera.grab(); // Capture a frame from the webcam 640x480
+
+//                    System.out.println(frame.imageHeight);
+//                    System.out.println(frame.imageWidth);
                     if (frame != null) {
                         BufferedImage originalBufferedImage = converterBuffered.convert(frame);
                         Mat binarizedImageMat = null;

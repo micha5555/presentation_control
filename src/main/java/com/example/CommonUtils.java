@@ -129,19 +129,19 @@ public class CommonUtils {
         IConverter converter = new Converter();
         MatOfPoint contour = converter.convertMatToMatOfPointNonEmptyPoints(contourMat);
         double surfaceArea = Imgproc.contourArea(contour);
-        System.out.println("Contour surface area: " + surfaceArea);
+//        System.out.println("Contour surface area: " + surfaceArea);
         return surfaceArea;
     }
 
     public static double countRectangleSurfaceArea(Point[] points) {
         double surfaceArea = (points[1].x - points[0].x) * (points[1].y - points[0].y);
-        System.out.println("Rectangle surface area: " + surfaceArea);
+//        System.out.println("Rectangle surface area: " + surfaceArea);
         return surfaceArea;
     }
 
     public static double countRectangleCircuit(Point[] points) {
         double circuit = 2 * (points[1].x - points[0].x) + 2 * (points[1].y - points[0].y);
-        System.out.println("Rectangle circuit: " + circuit);
+//        System.out.println("Rectangle circuit: " + circuit);
         return circuit;
     }
 

@@ -30,7 +30,7 @@ public class KeyClicker implements IKeyClicker {
         List<Integer> keys = fingersToKeyConverter.convertFingersToKey(fingersMap);
 
         Collection<FingerNames> fingers = fingersMap.values();
-        if(keys != null && keys.size() > 1) {
+        if(keys != null && !keys.isEmpty()) {
             for(Integer key : keys) {
                 robot.keyPress(key);
             }
