@@ -6,5 +6,5 @@ import org.opencv.core.Point;
 import java.util.Map;
 
 public interface IKeyClicker {
-    void clickKeyBasedOnFingers(Map<Point, FingerNames> fingersMap);
+    String clickKeyBasedOnFingers(Map<Point, FingerNames> fingersMap);
 }

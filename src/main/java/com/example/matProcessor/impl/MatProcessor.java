@@ -22,16 +22,16 @@ public class MatProcessor implements IMatProcessor {
         MatOfPoint convexHull = CommonUtils.findConvexHullPoints(biggestContourMat);
         List<MatOfPoint> contourMat = new ArrayList<>();
         contourMat.add(convexHull);
-        List<Point> pointsToDraw = new ArrayList<>(pointsToFingers.keySet());
+//        List<Point> pointsToDraw = new ArrayList<>(pointsToFingers.keySet());
         Point centroid = CommonUtils.findCentroid(convexHull);
 //        Point centroid = CommonUtils.findCentroid(converter.convertMatToMatOfPointNonEmptyPoints(biggestContourMat));
-        for(Point p : pointsToDraw) {
-            Imgproc.line(biggestContourMat, centroid, p, new Scalar(255, 0, 0), 3);
-            Imgproc.putText(biggestContourMat, pointsToFingers.get(p).toString(), p, 1, 2, new Scalar(255, 0, 0));
-        }
+//        for(Point p : pointsToDraw) {
+//            Imgproc.line(biggestContourMat, centroid, p, new Scalar(255, 0, 0), 3);
+//            Imgproc.putText(biggestContourMat, pointsToFingers.get(p).toString(), p, 1, 2, new Scalar(255, 0, 0));
+//        }
 //        System.out.println(realPoints);
-        Imgproc.circle(biggestContourMat, centroid, 10, new Scalar(255, 0, 0), Imgproc.FILLED);
-        Imgproc.drawContours(biggestContourMat, contourMat, 0, new Scalar(255, 0, 0));
+//        Imgproc.circle(biggestContourMat, centroid, 10, new Scalar(255, 0, 0), Imgproc.FILLED);
+//        Imgproc.drawContours(biggestContourMat, contourMat, 0, new Scalar(255, 0, 0));
 
         return converter.convertMatToBufferedImage(biggestContourMat);
     }

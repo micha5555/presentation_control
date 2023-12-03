@@ -19,15 +19,19 @@ public class App extends Application
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        FXMLLoader fxmlLoader = new FXMLLoader();
-        URL fxmlUrl = new File("src/main/java/com/example/view/main_view.fxml").toURI().toURL();
-        fxmlLoader.setLocation(fxmlUrl);
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader();
+            URL fxmlUrl = new File("src/main/java/com/example/view/main_view.fxml").toURI().toURL();
+            fxmlLoader.setLocation(fxmlUrl);
 
-        Scene scene = new Scene(fxmlLoader.load(), 1700, 800);
-        primaryStage.setScene(scene);
-        primaryStage.setResizable(false);
-        primaryStage.setTitle("Presentation Gesture Controller App");
-        primaryStage.show();
+            Scene scene = new Scene(fxmlLoader.load(), 1700, 800);
+            primaryStage.setScene(scene);
+            primaryStage.setResizable(false);
+            primaryStage.setTitle("Presentation Gesture Controller App");
+            primaryStage.show();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

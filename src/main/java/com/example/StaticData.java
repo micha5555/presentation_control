@@ -15,7 +15,7 @@ public class StaticData {
     public static final int MAX_GREEN_SLIDER = 100;
     public static final int MAX_BLUE_SLIDER = 255;
 
-    public static final int FRAMES_DELAY = 30;
+    public static final int FRAMES_DELAY = 15;
 
     public static final int MINIMAL_DISTANCE_BETWEEN_CONVEX_HULL_POINTS = 25;
 

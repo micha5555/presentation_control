@@ -30,7 +30,7 @@ public class FingerFinder implements IFingerFinder {
             Point currentPoint = convexHull.toArray()[i];
             if(currentPoint.y < centroid.y && !isPointToCloseToAnotherPoint(currentPoint, convexHullPoints)) {
                 convexHullPoints.add(currentPoint);
-                Imgproc.circle(contourMat, currentPoint, 7, new Scalar(255, 0, 0), Imgproc.FILLED);
+//                Imgproc.circle(contourMat, currentPoint, 7, new Scalar(255, 0, 0), Imgproc.FILLED);
                 realPoints++;
             }
         }
