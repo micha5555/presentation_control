@@ -211,7 +211,7 @@ public class Controller implements Initializable {
 //                    System.out.println(frame.imageWidth);
                     if (frame != null) {
                         BufferedImage originalBufferedImage = converterBuffered.convert(frame);
-                        originalImageView.setImage(CommonUtils.bufferedImageToFXImage(originalBufferedImage));
+
                         Mat binarizedImageMat = null;
                         Mat contourizedImageMat = null;
                         BufferedImage binarizedBufferedImage = null;
@@ -243,7 +243,7 @@ public class Controller implements Initializable {
                                 rectangleAboveCentroidPoints[1] = new Point(rectanglePoints[1].x, centroid.y);
                                 double rectangleSurfaceArea = CommonUtils.countRectangleSurfaceArea(rectanglePoints);
                                 if(paintedPointsAboveCentroid / CommonUtils.countRectangleSurfaceArea(rectangleAboveCentroidPoints) > 0.35 && rectangleSurfaceArea / contourizedImageMat.total() > 0.05) {
-                                    pointsToFingers = fingerFinder.retrieveFingersFromContour(contourizedImageMat);
+                                    pointsToFingers = fingerFinder.retrieveFingersFromContour(convexHull);
                                     for(Point p : pointsToFingers.keySet()) {
                                         Imgproc.circle(contourizedImageMat, p, 7, new Scalar(255, 0, 0), Imgproc.FILLED);
                                     }
@@ -281,10 +281,8 @@ public class Controller implements Initializable {
                                 finalImageView.setImage(CommonUtils.bufferedImageToFXImage(contouredBufferedImage));
                             }
 
-
-
-
                         }
+                        originalImageView.setImage(CommonUtils.bufferedImageToFXImage(originalBufferedImage));
                     }
                 } catch (Exception e) {
                     e.printStackTrace();

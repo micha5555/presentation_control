@@ -18,9 +18,9 @@ public class FingerFinder implements IFingerFinder {
     }
 
     @Override
-    public Map<Point, FingerNames> retrieveFingersFromContour(Mat contourMat) {
+    public Map<Point, FingerNames> retrieveFingersFromContour(MatOfPoint convexHull) {
 //        List<MatOfPoint> contourMatOfPoint = new ArrayList<>();
-        MatOfPoint convexHull = CommonUtils.findConvexHullPoints(contourMat);
+//        MatOfPoint convexHull = CommonUtils.findConvexHullPoints(contourMat);
 //        contourMatOfPoint.add(convexHull);
         Point centroid = CommonUtils.findCentroid(convexHull);
 //        Point centroid = CommonUtils.findCentroid(converter.convertMatToMatOfPointNonEmptyPoints(contourMat));
