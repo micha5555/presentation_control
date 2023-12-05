@@ -39,6 +39,15 @@
       <version>${javafx.version}</version>
     </dependency>
 
+    <!-- https://mvnrepository.com/artifact/org.openjfx/javafx-fxml -->
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-fxml</artifactId>
+      <version>${javafx.version}</version>
+    </dependency>
+
+
+
     <!-- https://mvnrepository.com/artifact/org.bytedeco/javacv -->
     <dependency>
       <groupId>org.bytedeco</groupId>
@@ -46,6 +55,13 @@
       <version>1.5.9</version>
     </dependency>
 
+    <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <version>1.18.30</version>
+      <scope>provided</scope>
+    </dependency>
 
     <!-- <dependency>
       <groupId>org.opencv</groupId>

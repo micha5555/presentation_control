@@ -18,9 +18,9 @@ public class FingerFinder implements IFingerFinder {
     }
 
     @Override
-    public Map<Point, FingerNames> retrieveFingersFromContour(Mat contourMat) {
+    public Map<Point, FingerNames> retrieveFingersFromContour(MatOfPoint convexHull) {
 //        List<MatOfPoint> contourMatOfPoint = new ArrayList<>();
-        MatOfPoint convexHull = CommonUtils.findConvexHullPoints(contourMat);
+//        MatOfPoint convexHull = CommonUtils.findConvexHullPoints(contourMat);
 //        contourMatOfPoint.add(convexHull);
         Point centroid = CommonUtils.findCentroid(convexHull);
 //        Point centroid = CommonUtils.findCentroid(converter.convertMatToMatOfPointNonEmptyPoints(contourMat));
@@ -30,7 +30,7 @@ public class FingerFinder implements IFingerFinder {
             Point currentPoint = convexHull.toArray()[i];
             if(currentPoint.y < centroid.y && !isPointToCloseToAnotherPoint(currentPoint, convexHullPoints)) {
                 convexHullPoints.add(currentPoint);
-                Imgproc.circle(contourMat, currentPoint, 7, new Scalar(255, 0, 0), Imgproc.FILLED);
+//                Imgproc.circle(contourMat, currentPoint, 7, new Scalar(255, 0, 0), Imgproc.FILLED);
                 realPoints++;
             }
         }

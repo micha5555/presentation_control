@@ -37,4 +37,8 @@ public class JavaFXTools {
         Slider blueSlider = (Slider)blue.getChildren().get(1);
         return String.format("(%d, %d, %d)", (int)redSlider.getValue(), (int)greenSlider.getValue(), (int)blueSlider.getValue());
     }
+
+    public static String formatCurrentThreshold(int red, int green, int blue) {
+        return String.format("(%d, %d, %d)", red, green, blue);
+    }
 }

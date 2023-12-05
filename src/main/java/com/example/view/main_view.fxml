@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1700.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.controller.Controller">
+   <children>
+      <HBox id="imageViewsHBox" layoutX="65.0" layoutY="30.0" prefHeight="360.0" prefWidth="1570.0">
+         <children>
+            <ImageView id="originalImageView" fx:id="originalImageView" fitHeight="360.0" fitWidth="480.0" pickOnBounds="true" preserveRatio="true" />
+            <ImageView id="binarizedImageView" fx:id="binarizedImageView" fitHeight="360.0" fitWidth="480.0" pickOnBounds="true" preserveRatio="true">
+               <HBox.margin>
+                  <Insets left="65.0" right="65.0" />
+               </HBox.margin>
+            </ImageView>
+            <ImageView id="finalImageView" fx:id="finalImageView" fitHeight="360.0" fitWidth="480.0" pickOnBounds="true" preserveRatio="true" />
+         </children>
+      </HBox>
+      <HBox layoutX="35.0" layoutY="400.0" prefHeight="178.0" prefWidth="1432.0">
+         <children>
+            <VBox id="maxThresholdVBox" prefHeight="200.0" prefWidth="500.0">
+               <children>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Minimal red threshold" />
+                  <Slider id="maxRedSlider" fx:id="minRedSlider" max="255.0" showTickLabels="true" showTickMarks="true" />
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Minimal green threshold" />
+                  <Slider id="maxGreenSlider" fx:id="minGreenSlider" max="255.0" showTickLabels="true" showTickMarks="true" />
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Minimal blue threshold" />
+                  <Slider id="maxBlueSlider" fx:id="minBlueSlider" max="255.0" showTickLabels="true" showTickMarks="true" />
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Actual min threshold(R,G,B): " />
+                  <Text id="actualMaxThresholdText" fx:id="actualMinThreshold" strokeType="OUTSIDE" strokeWidth="0.0" />
+               </children>
+               <padding>
+                  <Insets right="50.0" />
+               </padding>
+            </VBox>
+            <VBox id="minThresholdVBox" prefHeight="200.0" prefWidth="500.0">
+               <children>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Maximal red threshold" />
+                  <Slider id="minRedSlider" fx:id="maxRedSlider" max="255.0" showTickLabels="true" showTickMarks="true" />
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Maximal green threshold" />
+                  <Slider id="minGreenSlider" fx:id="maxGreenSlider" max="255.0" showTickLabels="true" showTickMarks="true" />
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Maximal blue threshold" />
+                  <Slider id="minBlueSlider" fx:id="maxBlueSlider" max="255.0" showTickLabels="true" showTickMarks="true" />
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Actual max threshold(R,G,B): " />
+                  <Text id="actualMinThresholdText" fx:id="actualMaxThreshold" strokeType="OUTSIDE" strokeWidth="0.0" />
+               </children>
+               <padding>
+                  <Insets right="50.0" />
+               </padding>
+            </VBox>
+            <VBox id="otherOptionsVBox" prefHeight="178.0" prefWidth="183.0">
+               <children>
+                  <CheckBox id="enableFindingFingersCheckBox" fx:id="enableFindingFingersCheckBox" mnemonicParsing="false" text="Enable finding fingers">
+                     <VBox.margin>
+                        <Insets bottom="10.0" />
+                     </VBox.margin>
+                  </CheckBox>
+                  <CheckBox id="enableClickingKeysCheckBox" fx:id="enableClickingKeysCheckbox" mnemonicParsing="false" text="Enable clicking keys">
+                     <VBox.margin>
+                        <Insets bottom="10.0" />
+                     </VBox.margin>
+                  </CheckBox>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Last clicked key(s): ">
+                     <font>
+                        <Font size="27.0" />
+                     </font></Text>
+                  <Text id="lastClickedKeysText" fx:id="lastClickedKeysText" strokeType="OUTSIDE" strokeWidth="0.0">
+                     <font>
+                        <Font size="27.0" />
+                     </font></Text>
+               </children>
+            </VBox>
+            <VBox prefHeight="194.0" prefWidth="161.0">
+               <children>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Processed image options:">
+                     <VBox.margin>
+                        <Insets bottom="5.0" />
+                     </VBox.margin>
+                  </Text>
+                  <CheckBox fx:id="drawConvexHullCheckbox" mnemonicParsing="false" text="Draw convex hull">
+                     <VBox.margin>
+                        <Insets bottom="5.0" />
+                     </VBox.margin>
+                  </CheckBox>
+                  <CheckBox fx:id="drawSmallestRectangleCheckbox" mnemonicParsing="false" text="Draw smallest rectangle">
+                     <VBox.margin>
+                        <Insets bottom="5.0" />
+                     </VBox.margin>
+                  </CheckBox>
+                  <CheckBox fx:id="drawFingersConnectionsCheckbox" mnemonicParsing="false" text="Draw fingers connections">
+                     <VBox.margin>
+                        <Insets bottom="5.0" />
+                     </VBox.margin>
+                  </CheckBox>
+                  <CheckBox fx:id="drawFingersNamesCheckbox" mnemonicParsing="false" text="Draw fingers' names" />
+               </children>
+            </VBox>
+         </children>
+      </HBox>
+   </children>
+</Pane>
