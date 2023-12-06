@@ -7,22 +7,22 @@ import java.util.List;
 import java.util.Map;
 
 public class StaticData {
-    // blue glove BGR: (90, 0, 0) - (255, 100, 70)
-//    public static final int MIN_RED_SLIDER = 0;
-//    public static final int MIN_GREEN_SLIDER = 17;
-//    public static final int MIN_BLUE_SLIDER = 96;
-//    public static final int MAX_RED_SLIDER = 70;
-//    public static final int MAX_GREEN_SLIDER = 173;
-//    public static final int MAX_BLUE_SLIDER = 255;
 
-
-    public static final int MIN_RED_SLIDER = 217;
-    public static final int MIN_GREEN_SLIDER = 44;
+//  RGB color space for blue glove
+    public static final int MIN_RED_SLIDER = 215;
+    public static final int MIN_GREEN_SLIDER = 33;
     public static final int MIN_BLUE_SLIDER = 0;
-    public static final int MAX_RED_SLIDER = 246;
-    public static final int MAX_GREEN_SLIDER = 100;
-    public static final int MAX_BLUE_SLIDER = 100;
+    public static final int MAX_RED_SLIDER = 252;
+    public static final int MAX_GREEN_SLIDER = 255;
+    public static final int MAX_BLUE_SLIDER = 255;
 
+//  HSV color space for blue glove
+    public static final int MIN_HUE_SLIDER = 217;
+    public static final int MIN_SATURATION_SLIDER = 44;
+    public static final int MIN_VALUE_SLIDER = 0;
+    public static final int MAX_HUE_SLIDER = 246;
+    public static final int MAX_SATURATION_SLIDER = 100;
+    public static final int MAX_VALUE_SLIDER = 100;
 
     public static final int FRAMES_DELAY = 15;
 

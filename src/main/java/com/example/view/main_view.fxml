@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Slider?>
 <?import javafx.scene.image.ImageView?>
@@ -10,7 +11,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1700.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.controller.Controller">
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1700.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.controller.Controller">
    <children>
       <HBox id="imageViewsHBox" layoutX="65.0" layoutY="30.0" prefHeight="360.0" prefWidth="1570.0">
          <children>
@@ -27,13 +28,13 @@
          <children>
             <VBox id="maxThresholdVBox" prefHeight="200.0" prefWidth="500.0">
                <children>
-                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Minimal hue threshold" />
-                  <Slider id="maxRedSlider" fx:id="minRedSlider" max="360.0" showTickLabels="true" showTickMarks="true" />
-                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Minimal saturation threshold" />
-                  <Slider id="maxGreenSlider" fx:id="minGreenSlider" max="100.0" showTickLabels="true" showTickMarks="true" />
-                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Minimal value threshold" />
-                  <Slider id="maxBlueSlider" fx:id="minBlueSlider" max="100.0" showTickLabels="true" showTickMarks="true" />
-                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Actual min threshold(H,S,V): " />
+                  <Text fx:id="minimalFirstText" strokeType="OUTSIDE" strokeWidth="0.0" text="Minimal hue threshold" />
+                  <Slider id="maxRedSlider" fx:id="minFirstSlider" max="360.0" showTickLabels="true" showTickMarks="true" />
+                  <Text fx:id="minimalSecondText" strokeType="OUTSIDE" strokeWidth="0.0" text="Minimal saturation threshold" />
+                  <Slider id="maxGreenSlider" fx:id="minSecondSlider" max="100.0" showTickLabels="true" showTickMarks="true" />
+                  <Text fx:id="minimalThirdText" strokeType="OUTSIDE" strokeWidth="0.0" text="Minimal value threshold" />
+                  <Slider id="maxBlueSlider" fx:id="minThirdSlider" max="100.0" showTickLabels="true" showTickMarks="true" />
+                  <Text fx:id="actualMinHeader" strokeType="OUTSIDE" strokeWidth="0.0" text="Actual min threshold(H,S,V): " />
                   <Text id="actualMaxThresholdText" fx:id="actualMinThreshold" strokeType="OUTSIDE" strokeWidth="0.0" />
                </children>
                <padding>
@@ -42,13 +43,13 @@
             </VBox>
             <VBox id="minThresholdVBox" prefHeight="200.0" prefWidth="500.0">
                <children>
-                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Maximal hue threshold" />
-                  <Slider id="minRedSlider" fx:id="maxRedSlider" max="360.0" showTickLabels="true" showTickMarks="true" />
-                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Maximal saturation threshold" />
-                  <Slider id="minGreenSlider" fx:id="maxGreenSlider" max="100.0" showTickLabels="true" showTickMarks="true" />
-                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Maximal value threshold" />
-                  <Slider id="minBlueSlider" fx:id="maxBlueSlider" max="100.0" showTickLabels="true" showTickMarks="true" />
-                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Actual max threshold(H,S,V): " />
+                  <Text fx:id="maxFirstText" strokeType="OUTSIDE" strokeWidth="0.0" text="Maximal hue threshold" />
+                  <Slider id="minRedSlider" fx:id="maxFirstSlider" max="360.0" showTickLabels="true" showTickMarks="true" />
+                  <Text fx:id="maxSecondText" strokeType="OUTSIDE" strokeWidth="0.0" text="Maximal saturation threshold" />
+                  <Slider id="minGreenSlider" fx:id="maxSecondSlider" max="100.0" showTickLabels="true" showTickMarks="true" />
+                  <Text fx:id="maxThirdText" strokeType="OUTSIDE" strokeWidth="0.0" text="Maximal value threshold" />
+                  <Slider id="minBlueSlider" fx:id="maxThirdSlider" max="100.0" showTickLabels="true" showTickMarks="true" />
+                  <Text fx:id="actualMaxHeader" strokeType="OUTSIDE" strokeWidth="0.0" text="Actual max threshold(H,S,V): " />
                   <Text id="actualMinThresholdText" fx:id="actualMaxThreshold" strokeType="OUTSIDE" strokeWidth="0.0" />
                </children>
                <padding>
@@ -57,6 +58,11 @@
             </VBox>
             <VBox id="otherOptionsVBox" prefHeight="178.0" prefWidth="183.0">
                <children>
+                  <Button fx:id="switchBetweenColorSpacesButton" mnemonicParsing="false" text="Button">
+                     <VBox.margin>
+                        <Insets bottom="10.0" />
+                     </VBox.margin>
+                  </Button>
                   <CheckBox id="enableFindingFingersCheckBox" fx:id="enableFindingFingersCheckBox" mnemonicParsing="false" text="Enable finding fingers">
                      <VBox.margin>
                         <Insets bottom="10.0" />

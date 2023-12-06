@@ -1,9 +1,6 @@
 package com.example.controller;
 
-import com.example.CommonUtils;
-import com.example.FingerNames;
-import com.example.JavaFXTools;
-import com.example.StaticData;
+import com.example.*;
 import com.example.binarization.IBinarizator;
 import com.example.binarization.impl.HSVBasedBinarizator;
 import com.example.binarization.impl.RGBBasedBinarizator;
@@ -21,8 +18,11 @@ import com.example.matProcessor.impl.MatProcessor;
 import com.example.model.Model;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Slider;
 import javafx.scene.image.ImageView;
@@ -44,7 +44,13 @@ import java.util.*;
 public class Controller implements Initializable {
 
     @FXML
+    private Text actualMaxHeader;
+
+    @FXML
     private Text actualMaxThreshold;
+
+    @FXML
+    private Text actualMinHeader;
 
     @FXML
     private Text actualMinThreshold;
@@ -53,12 +59,6 @@ public class Controller implements Initializable {
     @Getter
     @Setter
     private ImageView binarizedImageView;
-
-    @FXML
-    private CheckBox enableClickingKeysCheckbox;
-
-    @FXML
-    private CheckBox enableFindingFingersCheckBox;
 
     @FXML
     private CheckBox drawConvexHullCheckbox;
@@ -73,6 +73,12 @@ public class Controller implements Initializable {
     private CheckBox drawSmallestRectangleCheckbox;
 
     @FXML
+    private CheckBox enableClickingKeysCheckbox;
+
+    @FXML
+    private CheckBox enableFindingFingersCheckBox;
+
+    @FXML
     @Getter
     @Setter
     private ImageView finalImageView;
@@ -82,27 +88,48 @@ public class Controller implements Initializable {
     private Text lastClickedKeysText;
 
     @FXML
-    private Slider maxBlueSlider;
+    private Slider maxFirstSlider;
 
     @FXML
-    private Slider maxGreenSlider;
+    private Text maxFirstText;
 
     @FXML
-    private Slider maxRedSlider;
+    private Slider maxSecondSlider;
 
     @FXML
-    private Slider minBlueSlider;
+    private Text maxSecondText;
 
     @FXML
-    private Slider minGreenSlider;
+    private Slider maxThirdSlider;
 
     @FXML
-    private Slider minRedSlider;
+    private Text maxThirdText;
+
+    @FXML
+    private Slider minFirstSlider;
+
+    @FXML
+    private Slider minSecondSlider;
+
+    @FXML
+    private Slider minThirdSlider;
+
+    @FXML
+    private Text minimalFirstText;
+
+    @FXML
+    private Text minimalSecondText;
+
+    @FXML
+    private Text minimalThirdText;
 
     @FXML
     @Getter
     @Setter
     private ImageView originalImageView;
+
+    @FXML
+    private Button switchBetweenColorSpacesButton;
 
     private Model model;
 
@@ -126,6 +153,9 @@ public class Controller implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         model = new Model();
 
+        switchBetweenColorSpacesButton.setText("Switch to RGB");
+        switchBetweenColorSpacesButton.setOnAction(switchBetweenColorSpaces);
+
 //        initialize model components
         binarizator = new HSVBasedBinarizator();
         converter = new Converter();
@@ -135,21 +165,21 @@ public class Controller implements Initializable {
         keyClicker = new KeyClicker(new FingersToKeyConverter());
 
 //        adding listeners to view components
-        addListenerToSlider(minRedSlider, true);
-        addListenerToSlider(minGreenSlider, true);
-        addListenerToSlider(minBlueSlider, true);
-        addListenerToSlider(maxRedSlider, false);
-        addListenerToSlider(maxGreenSlider, false);
-        addListenerToSlider(maxBlueSlider, false);
+        addListenerToSlider(minFirstSlider, true);
+        addListenerToSlider(minSecondSlider, true);
+        addListenerToSlider(minThirdSlider, true);
+        addListenerToSlider(maxFirstSlider, false);
+        addListenerToSlider(maxSecondSlider, false);
+        addListenerToSlider(maxThirdSlider, false);
 
         Scalar minThresholdScalar = model.getMinThresholdScalar();
         Scalar maxThresholdScalar = model.getMaxThresholdScalar();
-        minRedSlider.setValue(minThresholdScalar.val[2]);
-        minGreenSlider.setValue(minThresholdScalar.val[1]);
-        minBlueSlider.setValue(minThresholdScalar.val[0]);
-        maxRedSlider.setValue(maxThresholdScalar.val[2]);
-        maxGreenSlider.setValue(maxThresholdScalar.val[1]);
-        maxBlueSlider.setValue(maxThresholdScalar.val[0]);
+        minFirstSlider.setValue(minThresholdScalar.val[0]);
+        minSecondSlider.setValue(minThresholdScalar.val[1]);
+        minThirdSlider.setValue(minThresholdScalar.val[2]);
+        maxFirstSlider.setValue(maxThresholdScalar.val[0]);
+        maxSecondSlider.setValue(maxThresholdScalar.val[1]);
+        maxThirdSlider.setValue(maxThresholdScalar.val[2]);
 
         drawConvexHullCheckbox.fire();
         drawFingersConnectionsCheckbox.fire();
@@ -169,23 +199,78 @@ public class Controller implements Initializable {
         slider.valueProperty().addListener(new ChangeListener<Number>() {
             public void changed(ObservableValue<?extends Number> observable, Number oldValue, Number newValue){
                 if(isMinThreshold) {
-                    int minRedValue = (int)minRedSlider.getValue();
-                    int minGreenValue = (int)minGreenSlider.getValue();
-                    int minBlueValue = (int)minBlueSlider.getValue();
-                    model.changeMinThresholdScalar(minRedValue, minGreenValue, minBlueValue);
+                    int minFirstSliderValue = (int)minFirstSlider.getValue();
+                    int minSecondSliderValue = (int)minSecondSlider.getValue();
+                    int minThirdSliderValue = (int)minThirdSlider.getValue();
+                    model.changeMinThresholdScalar(minFirstSliderValue, minSecondSliderValue, minThirdSliderValue);
 //                    minThresholdScalar  = new Scalar((int)minBlueSlider.getValue(), (int)minGreenSlider.getValue(), (int)minRedSlider.getValue());
-                    actualMinThreshold.setText(JavaFXTools.formatCurrentThreshold(minRedValue, minGreenValue, minBlueValue));
+                    actualMinThreshold.setText(JavaFXTools.formatCurrentThreshold(minFirstSliderValue, minSecondSliderValue, minThirdSliderValue));
                 } else {
-                    int maxRedValue = (int)maxRedSlider.getValue();
-                    int maxGreenValue = (int)maxGreenSlider.getValue();
-                    int maxBlueValue = (int)maxBlueSlider.getValue();
-                    model.changeMaxThresholdScalar(maxRedValue, maxGreenValue, maxBlueValue);
+                    int maxFirstSliderValue = (int)maxFirstSlider.getValue();
+                    int maxSecondSliderValue = (int)maxSecondSlider.getValue();
+                    int maxThirdSliderValue = (int)maxThirdSlider.getValue();
+                    model.changeMaxThresholdScalar(maxFirstSliderValue, maxSecondSliderValue, maxThirdSliderValue);
 //                    maxThresholdScalar  = new Scalar((int)maxBlueSlider.getValue(), (int)maxGreenSlider.getValue(), (int)maxRedSlider.getValue());
-                    actualMaxThreshold.setText(JavaFXTools.formatCurrentThreshold(maxRedValue, maxGreenValue, maxBlueValue));
+                    actualMaxThreshold.setText(JavaFXTools.formatCurrentThreshold(maxFirstSliderValue, maxSecondSliderValue, maxThirdSliderValue));
                 }
             }
         });
     }
+
+    EventHandler<ActionEvent> switchBetweenColorSpaces = event -> {
+        switch(model.getCurrentColorSpace()) {
+            case HSV:
+                model.setCurrentColorSpace(ColorSpaces.RGB);
+                model.changeMinThresholdScalar(StaticData.MIN_RED_SLIDER, StaticData.MIN_GREEN_SLIDER, StaticData.MIN_BLUE_SLIDER);
+                switchBetweenColorSpacesButton.setText("Switch to HSV");
+                actualMinHeader.setText("Actual min threshold(R,G,B): ");
+                actualMaxHeader.setText("Actual max threshold(R,G,B): ");
+                minFirstSlider.setMax(255);
+                minSecondSlider.setMax(255);
+                minThirdSlider.setMax(255);
+                maxFirstSlider.setMax(255);
+                maxSecondSlider.setMax(255);
+                maxThirdSlider.setMax(255);
+                minFirstSlider.setValue(StaticData.MIN_RED_SLIDER);
+                minSecondSlider.setValue(StaticData.MIN_GREEN_SLIDER);
+                minThirdSlider.setValue(StaticData.MIN_BLUE_SLIDER);
+                maxFirstSlider.setValue(StaticData.MAX_RED_SLIDER);
+                maxSecondSlider.setValue(StaticData.MAX_GREEN_SLIDER);
+                maxThirdSlider.setValue(StaticData.MAX_BLUE_SLIDER);
+                minimalFirstText.setText("Minimal red");
+                minimalSecondText.setText("Minimal green");
+                minimalThirdText.setText("Minimal blue");
+                maxFirstText.setText("Maximal red");
+                maxSecondText.setText("Maximal green");
+                maxThirdText.setText("Maximal blue");
+                break;
+            case RGB:
+                model.setCurrentColorSpace(ColorSpaces.HSV);
+                model.changeMinThresholdScalar(StaticData.MIN_HUE_SLIDER, StaticData.MIN_SATURATION_SLIDER, StaticData.MIN_VALUE_SLIDER);
+                switchBetweenColorSpacesButton.setText("Switch to RGB");
+                actualMinHeader.setText("Actual min threshold(H,S,V): ");
+                actualMaxHeader.setText("Actual max threshold(H,S,V): ");
+                minFirstSlider.setMax(360);
+                minSecondSlider.setMax(100);
+                minThirdSlider.setMax(100);
+                maxFirstSlider.setMax(360);
+                maxSecondSlider.setMax(100);
+                maxThirdSlider.setMax(100);
+                minFirstSlider.setValue(StaticData.MIN_HUE_SLIDER);
+                minSecondSlider.setValue(StaticData.MIN_SATURATION_SLIDER);
+                minThirdSlider.setValue(StaticData.MIN_VALUE_SLIDER);
+                maxFirstSlider.setValue(StaticData.MAX_HUE_SLIDER);
+                maxSecondSlider.setValue(StaticData.MAX_SATURATION_SLIDER);
+                maxThirdSlider.setValue(StaticData.MAX_VALUE_SLIDER);
+                minimalFirstText.setText("Minimal hue");
+                minimalSecondText.setText("Minimal saturation");
+                minimalThirdText.setText("Minimal value");
+                maxFirstText.setText("Maximal hue");
+                maxSecondText.setText("Maximal saturation");
+                maxThirdText.setText("Maximal value");
+                break;
+        }
+    };
 
     private void setupCamera() throws Exception {
         camera = new OpenCVFrameGrabber(0);
