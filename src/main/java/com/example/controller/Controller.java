@@ -5,7 +5,8 @@ import com.example.FingerNames;
 import com.example.JavaFXTools;
 import com.example.StaticData;
 import com.example.binarization.IBinarizator;
-import com.example.binarization.impl.Binarizator;
+import com.example.binarization.impl.HSVBasedBinarizator;
+import com.example.binarization.impl.RGBBasedBinarizator;
 import com.example.clicker.IKeyClicker;
 import com.example.clicker.impl.KeyClicker;
 import com.example.contourizer.IContourizer;
@@ -33,10 +34,7 @@ import org.bytedeco.javacv.Frame;
 import org.bytedeco.javacv.Java2DFrameConverter;
 import org.bytedeco.javacv.OpenCVFrameConverter;
 import org.bytedeco.javacv.OpenCVFrameGrabber;
-import org.opencv.core.Mat;
-import org.opencv.core.MatOfPoint;
-import org.opencv.core.Point;
-import org.opencv.core.Scalar;
+import org.opencv.core.*;
 import org.opencv.imgproc.Imgproc;
 
 import java.awt.image.BufferedImage;
@@ -129,7 +127,7 @@ public class Controller implements Initializable {
         model = new Model();
 
 //        initialize model components
-        binarizator = new Binarizator();
+        binarizator = new HSVBasedBinarizator();
         converter = new Converter();
         contourizer = new Contourizer();
         fingerFinder = new FingerFinder(converter);
@@ -207,8 +205,6 @@ public class Controller implements Initializable {
                 try {
                     Frame frame = camera.grab(); // Capture a frame from the webcam 640x480
 
-//                    System.out.println(frame.imageHeight);
-//                    System.out.println(frame.imageWidth);
                     if (frame != null) {
                         BufferedImage originalBufferedImage = converterBuffered.convert(frame);
 
@@ -218,7 +214,6 @@ public class Controller implements Initializable {
                         BufferedImage contouredBufferedImage = null;
                         Map<Point, FingerNames> pointsToFingers = null;
                         if(delay == 0){
-//                            System.out.println(originalBufferedImage);
                             binarizedImageMat = binarizator.convertBufferedImageToBinarizedMat(originalBufferedImage, model.getMinThresholdScalar(), model.getMaxThresholdScalar());
                             binarizedBufferedImage = converter.convertMatToBufferedImage(binarizedImageMat);
                             binarizedImageView.setImage(CommonUtils.bufferedImageToFXImage(binarizedBufferedImage));
