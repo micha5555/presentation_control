@@ -220,6 +220,7 @@ public class Controller implements Initializable {
     EventHandler<ActionEvent> switchBetweenColorSpaces = event -> {
         switch(model.getCurrentColorSpace()) {
             case HSV:
+                this.binarizator = new RGBBasedBinarizator();
                 model.setCurrentColorSpace(ColorSpaces.RGB);
                 model.changeMinThresholdScalar(StaticData.MIN_RED_SLIDER, StaticData.MIN_GREEN_SLIDER, StaticData.MIN_BLUE_SLIDER);
                 switchBetweenColorSpacesButton.setText("Switch to HSV");
@@ -245,6 +246,7 @@ public class Controller implements Initializable {
                 maxThirdText.setText("Maximal blue");
                 break;
             case RGB:
+                this.binarizator = new HSVBasedBinarizator();
                 model.setCurrentColorSpace(ColorSpaces.HSV);
                 model.changeMinThresholdScalar(StaticData.MIN_HUE_SLIDER, StaticData.MIN_SATURATION_SLIDER, StaticData.MIN_VALUE_SLIDER);
                 switchBetweenColorSpacesButton.setText("Switch to RGB");
