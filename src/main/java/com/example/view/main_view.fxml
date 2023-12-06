@@ -27,13 +27,13 @@
          <children>
             <VBox id="maxThresholdVBox" prefHeight="200.0" prefWidth="500.0">
                <children>
-                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Minimal red threshold" />
-                  <Slider id="maxRedSlider" fx:id="minRedSlider" max="255.0" showTickLabels="true" showTickMarks="true" />
-                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Minimal green threshold" />
-                  <Slider id="maxGreenSlider" fx:id="minGreenSlider" max="255.0" showTickLabels="true" showTickMarks="true" />
-                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Minimal blue threshold" />
-                  <Slider id="maxBlueSlider" fx:id="minBlueSlider" max="255.0" showTickLabels="true" showTickMarks="true" />
-                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Actual min threshold(R,G,B): " />
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Minimal hue threshold" />
+                  <Slider id="maxRedSlider" fx:id="minRedSlider" max="360.0" showTickLabels="true" showTickMarks="true" />
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Minimal saturation threshold" />
+                  <Slider id="maxGreenSlider" fx:id="minGreenSlider" max="100.0" showTickLabels="true" showTickMarks="true" />
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Minimal value threshold" />
+                  <Slider id="maxBlueSlider" fx:id="minBlueSlider" max="100.0" showTickLabels="true" showTickMarks="true" />
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Actual min threshold(H,S,V): " />
                   <Text id="actualMaxThresholdText" fx:id="actualMinThreshold" strokeType="OUTSIDE" strokeWidth="0.0" />
                </children>
                <padding>
@@ -42,13 +42,13 @@
             </VBox>
             <VBox id="minThresholdVBox" prefHeight="200.0" prefWidth="500.0">
                <children>
-                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Maximal red threshold" />
-                  <Slider id="minRedSlider" fx:id="maxRedSlider" max="255.0" showTickLabels="true" showTickMarks="true" />
-                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Maximal green threshold" />
-                  <Slider id="minGreenSlider" fx:id="maxGreenSlider" max="255.0" showTickLabels="true" showTickMarks="true" />
-                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Maximal blue threshold" />
-                  <Slider id="minBlueSlider" fx:id="maxBlueSlider" max="255.0" showTickLabels="true" showTickMarks="true" />
-                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Actual max threshold(R,G,B): " />
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Maximal hue threshold" />
+                  <Slider id="minRedSlider" fx:id="maxRedSlider" max="360.0" showTickLabels="true" showTickMarks="true" />
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Maximal saturation threshold" />
+                  <Slider id="minGreenSlider" fx:id="maxGreenSlider" max="100.0" showTickLabels="true" showTickMarks="true" />
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Maximal value threshold" />
+                  <Slider id="minBlueSlider" fx:id="maxBlueSlider" max="100.0" showTickLabels="true" showTickMarks="true" />
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Actual max threshold(H,S,V): " />
                   <Text id="actualMinThresholdText" fx:id="actualMaxThreshold" strokeType="OUTSIDE" strokeWidth="0.0" />
                </children>
                <padding>

@@ -8,14 +8,13 @@ import org.opencv.core.Scalar;
 
 import java.awt.image.BufferedImage;
 
-public class Binarizator implements IBinarizator {
+public class RGBBasedBinarizator implements IBinarizator {
 
     @Override
     public Mat convertBufferedImageToBinarizedMat(BufferedImage originalBufferedImage, Scalar minThreshold, Scalar maxThreshold) {
         Mat originalImageMat = CommonUtils.convertBufferedImageToMat(originalBufferedImage);
         Mat binarizedImageMat = new Mat();
         Core.inRange(originalImageMat, minThreshold, maxThreshold, binarizedImageMat);
-
         return binarizedImageMat;
     }
 }
