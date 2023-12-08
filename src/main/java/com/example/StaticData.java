@@ -24,7 +24,7 @@ public class StaticData {
     public static final int MAX_SATURATION_SLIDER = 100;
     public static final int MAX_VALUE_SLIDER = 100;
 
-    public static final int FRAMES_DELAY = 15;
+    public static final int FRAMES_DELAY = 0;
 
     public static final int MINIMAL_DISTANCE_BETWEEN_CONVEX_HULL_POINTS = 25;
 
