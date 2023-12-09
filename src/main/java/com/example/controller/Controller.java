@@ -35,6 +35,7 @@ import org.bytedeco.javacv.Java2DFrameConverter;
 import org.bytedeco.javacv.OpenCVFrameConverter;
 import org.bytedeco.javacv.OpenCVFrameGrabber;
 import org.opencv.core.*;
+import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
 import java.awt.image.BufferedImage;
@@ -283,6 +284,47 @@ public class Controller implements Initializable {
 //        org.bytedeco.opencv.opencv_core.Mat matImage = null;
         camera.start();
 
+//        Mat imageMat = Imgcodecs.imread("src/main/java/com/example/testImages/distance_transformed.png");
+
+//        Mat eroded = new Mat();
+//        Mat dilated = new Mat();
+//        Imgproc.erode(imageMat, eroded, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5, 5)));
+//        Imgproc.dilate(imageMat, dilated, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5, 5)));
+//
+//        Mat localMin = new Mat(imageMat.size(), CvType.CV_8U, new Scalar(0));
+//        Mat localMax = new Mat(imageMat.size(), CvType.CV_8U, new Scalar(0));
+//
+//        for (int i = 0; i < imageMat.height(); i++)
+//            for (int j = 0; j < imageMat.width(); j++) {
+//                if (imageMat.get(i, j) == eroded.get(i, j))
+//                    localMin.put(i, j, 255);
+//                if (imageMat.get(i, j) == dilated.get(i, j))
+//                    localMax.put(i, j, 255);
+//            }
+
+
+
+
+//        currently the best
+//        Mat binarized = Imgcodecs.imread("src/main/java/com/example/testImages/binarized.png");
+//        Imgproc.cvtColor(binarized, binarized, Imgproc.COLOR_BGR2GRAY);
+//        Mat distanceTransform = new Mat();
+//        Imgproc.distanceTransform(binarized, distanceTransform, Imgproc.DIST_L1, Imgproc.DIST_MASK_5);
+//        Mat distanceTransform8U = new Mat();
+//        distanceTransform.convertTo(distanceTransform8U, CvType.CV_8U);
+//        List<MatOfPoint> contours = new ArrayList<>();
+//        final Mat hierarchy = new Mat();
+//        Imgproc.findContours(binarized, contours, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
+////        Mat contourizedImageMat = contourizer.findBiggestContour(binarized);
+////        Mat localMax = findLocalMaximaWithinContour(distanceTransform8U, contours);
+//        Mat localMax = findLocalMaxima(distanceTransform8U);
+//        Mat result = new Mat();
+//        Core.bitwise_and(binarized, localMax, result);
+//
+////        Mat skeleton = iterateThrough(imageMat);
+//        originalImageView.setImage(CommonUtils.bufferedImageToFXImage(converter.convertMatToBufferedImage(distanceTransform)));
+////        Mat skeletonized = skeletonize(imageMat);
+//        binarizedImageView.setImage(CommonUtils.bufferedImageToFXImage(converter.convertMatToBufferedImage(result)));
         captureAndDisplayFrames();
     }
 
@@ -303,10 +345,10 @@ public class Controller implements Initializable {
                         BufferedImage contouredBufferedImage = null;
                         Map<Point, FingerNames> pointsToFingers = null;
                         if(delay == 0){
-                            originalImageView.setImage(CommonUtils.bufferedImageToFXImage(originalBufferedImage));
+//                            originalImageView.setImage(CommonUtils.bufferedImageToFXImage(originalBufferedImage));
                             binarizedImageMat = binarizator.convertBufferedImageToBinarizedMat(originalBufferedImage, model.getMinThresholdScalar(), model.getMaxThresholdScalar());
                             binarizedBufferedImage = converter.convertMatToBufferedImage(binarizedImageMat);
-                            binarizedImageView.setImage(CommonUtils.bufferedImageToFXImage(binarizedBufferedImage));
+//                            binarizedImageView.setImage(CommonUtils.bufferedImageToFXImage(binarizedBufferedImage));
 
                             // Convert the image to CV_32F (32-bit floating-point) for distance transform
 //                            Mat floatImage = new Mat();
@@ -319,13 +361,19 @@ public class Controller implements Initializable {
 //                            // Normalize the distance transform for display
 //                            Core.normalize(distanceTransform, distanceTransform, 0, 1, Core.NORM_MINMAX);
 
+                            originalImageView.setImage(CommonUtils.bufferedImageToFXImage(binarizedBufferedImage));
                             Mat distanceTransform = new Mat();
                             Imgproc.distanceTransform(binarizedImageMat, distanceTransform, Imgproc.DIST_L1, Imgproc.DIST_MASK_5);
+
+                            Mat localMaxima = findLocalMaxima(distanceTransform);
+                            Mat result = new Mat();
+                            Core.bitwise_and(binarizedImageMat, localMaxima, result);
+                            binarizedImageView.setImage(CommonUtils.bufferedImageToFXImage(converter.convertMatToBufferedImage(distanceTransform)));
 
                             // Normalize the distance transform for display
 //                            Core.normalize(distanceTransform, distanceTransform, 0, 128, Core.NORM_MINMAX);
 
-                            finalImageView.setImage(CommonUtils.bufferedImageToFXImage(converter.convertMatToBufferedImage(distanceTransform)));
+                            finalImageView.setImage(CommonUtils.bufferedImageToFXImage(converter.convertMatToBufferedImage(result)));
 
 //                            if(enableFindingFingersCheckBox.isSelected()) {
 //                                contourizedImageMat = contourizer.findBiggestContour(binarizedImageMat);
@@ -400,6 +448,42 @@ public class Controller implements Initializable {
         }).start();
     }
 
+    public static Mat findLocalMaxima(Mat input) {
+        Mat localMaxima = new Mat();
+
+        // Perform dilation to find local maxima
+        Mat dilated = new Mat();
+        Size kernelSize = new Size(4, 4); // Adjust kernel size as needed
+        Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, kernelSize);
+        Imgproc.dilate(input, dilated, kernel);
+
+        // Compare original distance-transformed image with dilated image
+        Core.compare(input, dilated, localMaxima, Core.CMP_EQ);
+
+        // Optionally, you can further process the local maxima (e.g., filtering noise)
+        // ...
+
+        return localMaxima;
+    }
+
+    public static Mat findLocalMaximaWithinContour(Mat input, List<MatOfPoint> contours) {
+        Mat localMaxima = new Mat();
+
+        // Create a blank mask
+        Mat mask = Mat.zeros(input.size(), CvType.CV_8U);
+
+        // Draw contours on the mask
+        Imgproc.drawContours(mask, contours, -1, new Scalar(255), -1);
+
+        // Mask the local maxima using the contour mask
+        Core.bitwise_and(input, mask, localMaxima);
+
+        // Optionally, you can further process the local maxima (e.g., filtering noise)
+        // ...
+
+        return localMaxima;
+    }
+
     private Mat skeletonizeDistanceTransformedImage(Mat input) {
         int rows = input.rows();
         int cols = input.cols();
@@ -417,4 +501,44 @@ public class Controller implements Initializable {
         }
         return output;
     }
+
+
+
+    private Mat iterateThrough(Mat input) {
+        int rows = input.rows();
+        int cols = input.cols();
+        Mat output = input.clone();
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                // Get the RGB values for each channel
+                double[] rgbValues = input.get(i, j);
+                if(rgbValues[0] > 60 && rgbValues[1] > 60 && rgbValues[2] > 60) {
+                    output.put(i, j, new double[]{255, 255, 255});
+                } else {
+                    output.put(i, j, new double[]{0, 0, 0});
+                }
+            }
+        }
+        return output;
+    }
+
+//    private Mat skeletonize(Mat input) {
+//        Mat skel = new Mat(input.size(), CvType.CV_32F, new Scalar(0));
+//        Mat temp = new Mat(input.size(), CvType.CV_32F, new Scalar(0));
+//        Mat eroded = new Mat(input.size(), CvType.CV_32F, new Scalar(0));
+//        Mat element = Imgproc.getStructuringElement(Imgproc.MORPH_CROSS, new Size(3, 3));
+//
+//        boolean done;
+//        do {
+//            Imgproc.erode(input, eroded, element);
+//            Imgproc.dilate(eroded, temp, element); // temp = open(img)
+//            Core.subtract(input, temp, temp);
+//            Core.bitwise_or(skel, temp, skel); // Perform the bitwise OR operation
+//            eroded.copyTo(input);
+//
+//            done = (Core.countNonZero(input) == 0);
+//        } while (!done);
+//
+//        return skel; // Return the skel Mat, not the input Mat
+//    }
 }
