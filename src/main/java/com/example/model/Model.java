@@ -1,6 +1,6 @@
 package com.example.model;
 
-import com.example.ColorSpaces;
+import com.example.enums.ColorSpaces;
 import com.example.StaticData;
 import lombok.Getter;
 import lombok.Setter;

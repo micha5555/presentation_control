@@ -1,9 +1,8 @@
 package com.example.fingersToKeyConverter;
 
-import com.example.FingerNames;
+import com.example.enums.FingerNames;
 import org.opencv.core.Point;
 
-import java.awt.event.KeyEvent;
 import java.util.List;
 import java.util.Map;
 

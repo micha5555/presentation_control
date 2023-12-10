@@ -1,6 +1,6 @@
 package com.example.matProcessor;
 
-import com.example.FingerNames;
+import com.example.enums.FingerNames;
 import com.example.converters.IConverter;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;

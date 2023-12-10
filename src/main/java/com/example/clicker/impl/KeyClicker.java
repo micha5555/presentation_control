@@ -1,6 +1,6 @@
 package com.example.clicker.impl;
 
-import com.example.FingerNames;
+import com.example.enums.FingerNames;
 import com.example.clicker.IKeyClicker;
 import com.example.fingersToKeyConverter.IFingersToKeyConverter;
 import org.opencv.core.Point;

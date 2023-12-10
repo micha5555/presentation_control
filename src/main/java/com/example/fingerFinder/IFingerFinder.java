@@ -1,8 +1,6 @@
 package com.example.fingerFinder;
 
-import com.example.FingerNames;
-import com.example.converters.IConverter;
-import org.opencv.core.Mat;
+import com.example.enums.FingerNames;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
 

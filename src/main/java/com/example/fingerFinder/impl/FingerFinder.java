@@ -1,12 +1,11 @@
 package com.example.fingerFinder.impl;
 
 import com.example.CommonUtils;
-import com.example.FingerNames;
+import com.example.enums.FingerNames;
 import com.example.StaticData;
 import com.example.converters.IConverter;
 import com.example.fingerFinder.IFingerFinder;
 import org.opencv.core.*;
-import org.opencv.imgproc.Imgproc;
 
 import java.util.*;
 

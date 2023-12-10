@@ -1,14 +1,12 @@
 package com.example.matProcessor.impl;
 
 import com.example.CommonUtils;
-import com.example.FingerNames;
+import com.example.enums.FingerNames;
 import com.example.converters.IConverter;
 import com.example.matProcessor.IMatProcessor;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
-import org.opencv.core.Scalar;
-import org.opencv.imgproc.Imgproc;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;

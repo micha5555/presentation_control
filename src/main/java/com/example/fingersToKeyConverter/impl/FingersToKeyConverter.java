@@ -1,12 +1,11 @@
 package com.example.fingersToKeyConverter.impl;
 
-import com.example.FingerNames;
+import com.example.enums.FingerNames;
 import com.example.StaticData;
 import com.example.fingersToKeyConverter.IFingersToKeyConverter;
 import com.example.fingersToKeyConverter.TextToKeyAssignData;
 import org.opencv.core.Point;
 
-import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;

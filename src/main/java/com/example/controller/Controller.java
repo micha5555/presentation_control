@@ -10,12 +10,17 @@ import com.example.contourizer.IContourizer;
 import com.example.contourizer.impl.Contourizer;
 import com.example.converters.IConverter;
 import com.example.converters.impl.Converter;
+import com.example.enums.ColorSpaces;
+import com.example.enums.FingerNames;
 import com.example.fingerFinder.IFingerFinder;
 import com.example.fingerFinder.impl.FingerFinder;
 import com.example.fingersToKeyConverter.impl.FingersToKeyConverter;
 import com.example.matProcessor.IMatProcessor;
 import com.example.matProcessor.impl.MatProcessor;
 import com.example.model.Model;
+import com.example.solution.ISolution;
+import com.example.solution.impl.ConvexHullSolution;
+import com.example.solution.impl.SkeletonBasedSolution;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -35,14 +40,13 @@ import org.bytedeco.javacv.Java2DFrameConverter;
 import org.bytedeco.javacv.OpenCVFrameConverter;
 import org.bytedeco.javacv.OpenCVFrameGrabber;
 import org.opencv.core.*;
-import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
+import com.example.enums.MatTypes;
 
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.net.URL;
 import java.util.*;
-
-import static org.opencv.core.CvType.CV_32F;
 
 public class Controller implements Initializable {
 
@@ -134,6 +138,9 @@ public class Controller implements Initializable {
     @FXML
     private Button switchBetweenColorSpacesButton;
 
+    @FXML
+    private Button switchBetweenSolutionsButton;
+
     private Model model;
 
     private OpenCVFrameGrabber camera;
@@ -148,6 +155,7 @@ public class Controller implements Initializable {
     private IFingerFinder fingerFinder;
     private IMatProcessor matProcessor;
     private IKeyClicker keyClicker;
+    private ISolution solution;
 
 //    public Controller(Model model) {
 //        this.model = model;
@@ -158,6 +166,8 @@ public class Controller implements Initializable {
 
         switchBetweenColorSpacesButton.setText("Switch to RGB");
         switchBetweenColorSpacesButton.setOnAction(switchBetweenColorSpaces);
+        switchBetweenSolutionsButton.setText("Switch to convex hull");
+        switchBetweenSolutionsButton.setOnAction(switchBetweenSolutions);
 
 //        initialize model components
         binarizator = new HSVBasedBinarizator();
@@ -166,6 +176,7 @@ public class Controller implements Initializable {
         fingerFinder = new FingerFinder(converter);
         matProcessor = new MatProcessor();
         keyClicker = new KeyClicker(new FingersToKeyConverter());
+        solution = new ConvexHullSolution(contourizer, fingerFinder, keyClicker);
 
 //        adding listeners to view components
         addListenerToSlider(minFirstSlider, true);
@@ -277,54 +288,24 @@ public class Controller implements Initializable {
         }
     };
 
+    EventHandler<ActionEvent> switchBetweenSolutions = event -> {
+        switch(solution.getClass().getSimpleName()) {
+            case "SkeletonBasedSolution":
+                solution = new ConvexHullSolution(contourizer, fingerFinder, keyClicker);
+                switchBetweenSolutionsButton.setText("Switch to convex hull");
+                break;
+            case "ConvexHullSolution":
+                solution = new SkeletonBasedSolution();
+                switchBetweenSolutionsButton.setText("Switch to convex hull");
+                break;
+        }
+    };
+
     private void setupCamera() throws Exception {
         camera = new OpenCVFrameGrabber(0);
         opencvConverter = new OpenCVFrameConverter.ToMat();
         converterBuffered = new Java2DFrameConverter();
-//        org.bytedeco.opencv.opencv_core.Mat matImage = null;
         camera.start();
-
-//        Mat imageMat = Imgcodecs.imread("src/main/java/com/example/testImages/distance_transformed.png");
-
-//        Mat eroded = new Mat();
-//        Mat dilated = new Mat();
-//        Imgproc.erode(imageMat, eroded, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5, 5)));
-//        Imgproc.dilate(imageMat, dilated, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5, 5)));
-//
-//        Mat localMin = new Mat(imageMat.size(), CvType.CV_8U, new Scalar(0));
-//        Mat localMax = new Mat(imageMat.size(), CvType.CV_8U, new Scalar(0));
-//
-//        for (int i = 0; i < imageMat.height(); i++)
-//            for (int j = 0; j < imageMat.width(); j++) {
-//                if (imageMat.get(i, j) == eroded.get(i, j))
-//                    localMin.put(i, j, 255);
-//                if (imageMat.get(i, j) == dilated.get(i, j))
-//                    localMax.put(i, j, 255);
-//            }
-
-
-
-
-//        currently the best
-//        Mat binarized = Imgcodecs.imread("src/main/java/com/example/testImages/binarized.png");
-//        Imgproc.cvtColor(binarized, binarized, Imgproc.COLOR_BGR2GRAY);
-//        Mat distanceTransform = new Mat();
-//        Imgproc.distanceTransform(binarized, distanceTransform, Imgproc.DIST_L1, Imgproc.DIST_MASK_5);
-//        Mat distanceTransform8U = new Mat();
-//        distanceTransform.convertTo(distanceTransform8U, CvType.CV_8U);
-//        List<MatOfPoint> contours = new ArrayList<>();
-//        final Mat hierarchy = new Mat();
-//        Imgproc.findContours(binarized, contours, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
-////        Mat contourizedImageMat = contourizer.findBiggestContour(binarized);
-////        Mat localMax = findLocalMaximaWithinContour(distanceTransform8U, contours);
-//        Mat localMax = findLocalMaxima(distanceTransform8U);
-//        Mat result = new Mat();
-//        Core.bitwise_and(binarized, localMax, result);
-//
-////        Mat skeleton = iterateThrough(imageMat);
-//        originalImageView.setImage(CommonUtils.bufferedImageToFXImage(converter.convertMatToBufferedImage(distanceTransform)));
-////        Mat skeletonized = skeletonize(imageMat);
-//        binarizedImageView.setImage(CommonUtils.bufferedImageToFXImage(converter.convertMatToBufferedImage(result)));
         captureAndDisplayFrames();
     }
 
@@ -340,14 +321,28 @@ public class Controller implements Initializable {
                         BufferedImage originalBufferedImage = converterBuffered.convert(frame);
 
                         Mat binarizedImageMat = null;
+                        Mat binarizedImageWithoutEmptyAreasMat = null;
                         Mat contourizedImageMat = null;
                         BufferedImage binarizedBufferedImage = null;
                         BufferedImage contouredBufferedImage = null;
                         Map<Point, FingerNames> pointsToFingers = null;
                         if(delay == 0){
+//                            System.out.println("Thread in Controller " + Thread. currentThread().getId());
 //                            originalImageView.setImage(CommonUtils.bufferedImageToFXImage(originalBufferedImage));
                             binarizedImageMat = binarizator.convertBufferedImageToBinarizedMat(originalBufferedImage, model.getMinThresholdScalar(), model.getMaxThresholdScalar());
-                            binarizedBufferedImage = converter.convertMatToBufferedImage(binarizedImageMat);
+//                            binarizedBufferedImage = converter.convertMatToBufferedImage(binarizedImageMat);
+                            contourizer.processBiggestContour(binarizedImageMat);
+//                            binarizedImageWithoutEmptyAreasMat = contourizer.getBiggestContourFilled();
+                            solution.setInitialMats(CommonUtils.convertBufferedImageToMat(originalBufferedImage), binarizedImageMat, binarizedImageMat);
+                            solution.enableClickingKeys();
+                            solution.execute();
+                            if(solution.getLastClickedKeys() != null && !solution.getLastClickedKeys().isEmpty()) {
+                                lastClickedKeysText.setText(solution.getLastClickedKeys());
+                            }
+
+//                            System.out.println("before setting image");
+                            setFXImagesBasedOnSolution();
+//                            System.out.println();
 //                            binarizedImageView.setImage(CommonUtils.bufferedImageToFXImage(binarizedBufferedImage));
 
                             // Convert the image to CV_32F (32-bit floating-point) for distance transform
@@ -361,22 +356,24 @@ public class Controller implements Initializable {
 //                            // Normalize the distance transform for display
 //                            Core.normalize(distanceTransform, distanceTransform, 0, 1, Core.NORM_MINMAX);
 
-                            originalImageView.setImage(CommonUtils.bufferedImageToFXImage(binarizedBufferedImage));
-                            Mat distanceTransform = new Mat();
-                            Imgproc.distanceTransform(binarizedImageMat, distanceTransform, Imgproc.DIST_L1, Imgproc.DIST_MASK_5);
+//                            originalImageView.setImage(CommonUtils.bufferedImageToFXImage(binarizedBufferedImage));
 
-                            Mat localMaxima = findLocalMaxima(distanceTransform);
-                            Mat result = new Mat();
-                            Core.bitwise_and(binarizedImageMat, localMaxima, result);
-                            binarizedImageView.setImage(CommonUtils.bufferedImageToFXImage(converter.convertMatToBufferedImage(distanceTransform)));
-
+//                            Mat distanceTransform = new Mat();
+//                            Imgproc.distanceTransform(binarizedImageWithoutEmptyAreasMat, distanceTransform, Imgproc.DIST_L1, Imgproc.DIST_MASK_5);
+//
+//                            Mat localMaxima = findLocalMaxima(distanceTransform);
+//                            Mat result = new Mat();
+//                            Core.bitwise_and(binarizedImageWithoutEmptyAreasMat, localMaxima, result);
+//                            Thread.sleep(10);
+//                            binarizedImageView.setImage(CommonUtils.bufferedImageToFXImage(converter.convertMatToBufferedImage(binarizedImageWithoutEmptyAreasMat)));
+//                            Thread.sleep(1);
                             // Normalize the distance transform for display
 //                            Core.normalize(distanceTransform, distanceTransform, 0, 128, Core.NORM_MINMAX);
 
-                            finalImageView.setImage(CommonUtils.bufferedImageToFXImage(converter.convertMatToBufferedImage(result)));
+//                            finalImageView.setImage(CommonUtils.bufferedImageToFXImage(converter.convertMatToBufferedImage(result)));
 
 //                            if(enableFindingFingersCheckBox.isSelected()) {
-//                                contourizedImageMat = contourizer.findBiggestContour(binarizedImageMat);
+//                                contourizedImageMat = contourizer.findBiggestContour(binarizedImageMat, false);
 //
 //                                MatOfPoint convexHull = CommonUtils.findConvexHullPoints(contourizedImageMat);
 //                                List<MatOfPoint> contourMat = new ArrayList<>();
@@ -448,79 +445,109 @@ public class Controller implements Initializable {
         }).start();
     }
 
-    public static Mat findLocalMaxima(Mat input) {
-        Mat localMaxima = new Mat();
-
-        // Perform dilation to find local maxima
-        Mat dilated = new Mat();
-        Size kernelSize = new Size(4, 4); // Adjust kernel size as needed
-        Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, kernelSize);
-        Imgproc.dilate(input, dilated, kernel);
-
-        // Compare original distance-transformed image with dilated image
-        Core.compare(input, dilated, localMaxima, Core.CMP_EQ);
-
-        // Optionally, you can further process the local maxima (e.g., filtering noise)
-        // ...
-
-        return localMaxima;
-    }
-
-    public static Mat findLocalMaximaWithinContour(Mat input, List<MatOfPoint> contours) {
-        Mat localMaxima = new Mat();
-
-        // Create a blank mask
-        Mat mask = Mat.zeros(input.size(), CvType.CV_8U);
-
-        // Draw contours on the mask
-        Imgproc.drawContours(mask, contours, -1, new Scalar(255), -1);
-
-        // Mask the local maxima using the contour mask
-        Core.bitwise_and(input, mask, localMaxima);
-
-        // Optionally, you can further process the local maxima (e.g., filtering noise)
-        // ...
-
-        return localMaxima;
-    }
-
-    private Mat skeletonizeDistanceTransformedImage(Mat input) {
-        int rows = input.rows();
-        int cols = input.cols();
-        Mat output = input.clone();
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < cols; j++) {
-                // Get the RGB values for each channel
-                double[] rgbValues = input.get(i, j);
-                if(rgbValues[0] == 255 && rgbValues[1] == 255 && rgbValues[2] == 255) {
-                    output.put(i, j, new double[]{255, 255, 255});
-                } else {
-                    output.put(i, j, new double[]{0, 0, 0});
-                }
-            }
+    private void setFXImagesBasedOnSolution() throws IOException, InterruptedException {
+//        System.out.println("Thread in setImages " + Thread. currentThread().getId());
+        Map<MatTypes, Mat> mats = solution.getMats();
+        switch(solution.getClass().getSimpleName()) {
+            case "SkeletonBasedSolution":
+                Mat originalMat = mats.get(MatTypes.ORIGINAL_MAT);
+                Mat binarizedMat = mats.get(MatTypes.BINARIZED_MAT);
+//                Mat binarizedMatWithoutEmptySpacesAndSmallObjects = mats.get(MatTypes.BINARIZED_MAT_WITHOUT_EMPTY_SPACES_AND_SMALL_OBJECTS);
+                Mat distanceTransformedMat = mats.get(MatTypes.DISTANCE_TRANSFORMED_MAT);
+                Thread.sleep(1);
+                originalImageView.setImage(CommonUtils.bufferedImageToFXImage(converter.convertMatToBufferedImage(originalMat)));
+                Thread.sleep(1);
+                binarizedImageView.setImage(CommonUtils.bufferedImageToFXImage(converter.convertMatToBufferedImage(binarizedMat)));
+                Thread.sleep(1);
+                finalImageView.setImage(CommonUtils.bufferedImageToFXImage(converter.convertMatToBufferedImage(distanceTransformedMat)));
+                Thread.sleep(1);
+                break;
+            case "ConvexHullSolution":
+                System.out.println(mats.keySet());
+                Thread.sleep(1);
+                originalImageView.setImage(CommonUtils.bufferedImageToFXImage(converter.convertMatToBufferedImage(mats.get(MatTypes.ORIGINAL_MAT))));
+                Thread.sleep(1);
+                binarizedImageView.setImage(CommonUtils.bufferedImageToFXImage(converter.convertMatToBufferedImage(mats.get(MatTypes.BINARIZED_MAT))));
+                Thread.sleep(1);
+//                why does it is setting slower than rest of imagesviews above?
+                finalImageView.setImage(CommonUtils.bufferedImageToFXImage(converter.convertMatToBufferedImage(mats.get(MatTypes.CONTOURIZED_MAT_NOT_FILLED))));
+                break;
         }
-        return output;
     }
 
-
-
-    private Mat iterateThrough(Mat input) {
-        int rows = input.rows();
-        int cols = input.cols();
-        Mat output = input.clone();
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < cols; j++) {
-                // Get the RGB values for each channel
-                double[] rgbValues = input.get(i, j);
-                if(rgbValues[0] > 60 && rgbValues[1] > 60 && rgbValues[2] > 60) {
-                    output.put(i, j, new double[]{255, 255, 255});
-                } else {
-                    output.put(i, j, new double[]{0, 0, 0});
-                }
-            }
-        }
-        return output;
-    }
+//    public static Mat findLocalMaxima(Mat input) {
+//        Mat localMaxima = new Mat();
+//
+//        // Perform dilation to find local maxima
+//        Mat dilated = new Mat();
+//        Size kernelSize = new Size(4, 4); // Adjust kernel size as needed
+//        Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, kernelSize);
+//        Imgproc.dilate(input, dilated, kernel);
+//
+//        // Compare original distance-transformed image with dilated image
+//        Core.compare(input, dilated, localMaxima, Core.CMP_EQ);
+//
+//        // Optionally, you can further process the local maxima (e.g., filtering noise)
+//        // ...
+//
+//        return localMaxima;
+//    }
+//
+//    public static Mat findLocalMaximaWithinContour(Mat input, List<MatOfPoint> contours) {
+//        Mat localMaxima = new Mat();
+//
+//        // Create a blank mask
+//        Mat mask = Mat.zeros(input.size(), CvType.CV_8U);
+//
+//        // Draw contours on the mask
+//        Imgproc.drawContours(mask, contours, -1, new Scalar(255), -1);
+//
+//        // Mask the local maxima using the contour mask
+//        Core.bitwise_and(input, mask, localMaxima);
+//
+//        // Optionally, you can further process the local maxima (e.g., filtering noise)
+//        // ...
+//
+//        return localMaxima;
+//    }
+//
+//    private Mat skeletonizeDistanceTransformedImage(Mat input) {
+//        int rows = input.rows();
+//        int cols = input.cols();
+//        Mat output = input.clone();
+//        for (int i = 0; i < rows; i++) {
+//            for (int j = 0; j < cols; j++) {
+//                // Get the RGB values for each channel
+//                double[] rgbValues = input.get(i, j);
+//                if(rgbValues[0] == 255 && rgbValues[1] == 255 && rgbValues[2] == 255) {
+//                    output.put(i, j, new double[]{255, 255, 255});
+//                } else {
+//                    output.put(i, j, new double[]{0, 0, 0});
+//                }
+//            }
+//        }
+//        return output;
+//    }
+//
+//
+//
+//    private Mat iterateThrough(Mat input) {
+//        int rows = input.rows();
+//        int cols = input.cols();
+//        Mat output = input.clone();
+//        for (int i = 0; i < rows; i++) {
+//            for (int j = 0; j < cols; j++) {
+//                // Get the RGB values for each channel
+//                double[] rgbValues = input.get(i, j);
+//                if(rgbValues[0] > 60 && rgbValues[1] > 60 && rgbValues[2] > 60) {
+//                    output.put(i, j, new double[]{255, 255, 255});
+//                } else {
+//                    output.put(i, j, new double[]{0, 0, 0});
+//                }
+//            }
+//        }
+//        return output;
+//    }
 
 //    private Mat skeletonize(Mat input) {
 //        Mat skel = new Mat(input.size(), CvType.CV_32F, new Scalar(0));

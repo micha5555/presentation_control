@@ -1,5 +1,7 @@
 package com.example;
 
+import com.example.enums.FingerNames;
+
 import java.awt.event.KeyEvent;
 import java.util.Arrays;
 import java.util.HashMap;
