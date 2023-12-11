@@ -331,11 +331,16 @@ public class Controller implements Initializable {
 //                            originalImageView.setImage(CommonUtils.bufferedImageToFXImage(originalBufferedImage));
                             binarizedImageMat = binarizator.convertBufferedImageToBinarizedMat(originalBufferedImage, model.getMinThresholdScalar(), model.getMaxThresholdScalar());
 //                            binarizedBufferedImage = converter.convertMatToBufferedImage(binarizedImageMat);
-                            contourizer.processBiggestContour(binarizedImageMat);
-//                            binarizedImageWithoutEmptyAreasMat = contourizer.getBiggestContourFilled();
-                            solution.setInitialMats(CommonUtils.convertBufferedImageToMat(originalBufferedImage), binarizedImageMat, binarizedImageMat);
+//                            contourizer.processBiggestContour(binarizedImageMat);
+//                            binarizedImageWithoutEmptyAreasMat = contourizer.processBiggestContour(binarizedImageMat);
+                            solution.setInitialMats(CommonUtils.convertBufferedImageToMat(originalBufferedImage), binarizedImageMat);
                             solution.enableClickingKeys();
-                            solution.execute();
+                            try{
+                                solution.execute();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+
                             if(solution.getLastClickedKeys() != null && !solution.getLastClickedKeys().isEmpty()) {
                                 lastClickedKeysText.setText(solution.getLastClickedKeys());
                             }
@@ -463,12 +468,12 @@ public class Controller implements Initializable {
                 Thread.sleep(1);
                 break;
             case "ConvexHullSolution":
-                System.out.println(mats.keySet());
-                Thread.sleep(1);
+//                System.out.println(mats.keySet());
+//                Thread.sleep(1);
                 originalImageView.setImage(CommonUtils.bufferedImageToFXImage(converter.convertMatToBufferedImage(mats.get(MatTypes.ORIGINAL_MAT))));
-                Thread.sleep(1);
+//                Thread.sleep(1);
                 binarizedImageView.setImage(CommonUtils.bufferedImageToFXImage(converter.convertMatToBufferedImage(mats.get(MatTypes.BINARIZED_MAT))));
-                Thread.sleep(1);
+//                Thread.sleep(1);
 //                why does it is setting slower than rest of imagesviews above?
                 finalImageView.setImage(CommonUtils.bufferedImageToFXImage(converter.convertMatToBufferedImage(mats.get(MatTypes.CONTOURIZED_MAT_NOT_FILLED))));
                 break;

@@ -64,7 +64,7 @@ public class ConvexHullSolution implements ISolution {
                 lastClickedKeys = clickedKeys;
             }
         }
-//        System.out.println("end of execute");
+        System.out.println("end of execute");
     }
 
     @Override
@@ -78,11 +78,11 @@ public class ConvexHullSolution implements ISolution {
     }
 
     @Override
-    public void setInitialMats(Mat originalMat, Mat binaryMat, Mat binaryMatWithoutEmptySpacesAndSmallObjects) {
+    public void setInitialMats(Mat originalMat, Mat binaryMat) {
         mats = new HashMap<>();
         mats.put(MatTypes.ORIGINAL_MAT, originalMat.clone());
         mats.put(MatTypes.BINARIZED_MAT, binaryMat.clone());
-        mats.put(MatTypes.BINARIZED_MAT_WITHOUT_EMPTY_SPACES_AND_SMALL_OBJECTS, binaryMatWithoutEmptySpacesAndSmallObjects.clone());
+        mats.put(MatTypes.BINARIZED_MAT_WITHOUT_EMPTY_SPACES_AND_SMALL_OBJECTS, contourizer.findBiggestContourAndFill(binaryMat.clone()));
     }
 
     @Override
@@ -101,7 +101,7 @@ public class ConvexHullSolution implements ISolution {
     }
 
     private void findContours() {
-        Mat contourizedImageMat = contourizer.processBiggestContour(mats.get(MatTypes.BINARIZED_MAT_WITHOUT_EMPTY_SPACES_AND_SMALL_OBJECTS));
+        Mat contourizedImageMat = contourizer.findBiggestContourAndNotFill(mats.get(MatTypes.BINARIZED_MAT));
         mats.put(MatTypes.CONTOURIZED_MAT_NOT_FILLED, contourizedImageMat);
     }
 

@@ -41,11 +41,11 @@ public class SkeletonBasedSolution implements ISolution {
     }
 
     @Override
-    public void setInitialMats(Mat originalMat, Mat binaryMat, Mat binaryMatWithoutEmptySpacesAndSmallObjects) {
+    public void setInitialMats(Mat originalMat, Mat binaryMat) {
         mats.clear();
         mats.put(MatTypes.ORIGINAL_MAT, originalMat);
         mats.put(MatTypes.BINARIZED_MAT, binaryMat);
-        mats.put(MatTypes.BINARIZED_MAT_WITHOUT_EMPTY_SPACES_AND_SMALL_OBJECTS, binaryMatWithoutEmptySpacesAndSmallObjects);
+//        mats.put(MatTypes.BINARIZED_MAT_WITHOUT_EMPTY_SPACES_AND_SMALL_OBJECTS, binaryMatWithoutEmptySpacesAndSmallObjects);
     }
 
     @Override

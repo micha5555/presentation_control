@@ -8,7 +8,7 @@ import java.util.Map;
 public interface ISolution {
     void execute();
     Map<MatTypes, Mat> getMats();
-    void setInitialMats(Mat originalMat, Mat binaryMat, Mat binaryMatWithoutEmptySpacesAndSmallObjects);
+    void setInitialMats(Mat originalMat, Mat binaryMat);
     String getLastClickedKeys();
     void enableClickingKeys();
     void disableClickingKeys();
