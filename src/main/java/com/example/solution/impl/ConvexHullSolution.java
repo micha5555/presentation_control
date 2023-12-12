@@ -9,7 +9,9 @@ import com.example.fingerFinder.IFingerFinder;
 import com.example.solution.ISolution;
 import org.opencv.core.Mat;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.opencv.core.*;
@@ -22,6 +24,8 @@ public class ConvexHullSolution implements ISolution {
     private IFingerFinder fingerFinder;
 
     private IKeyClicker keyClicker;
+
+    private boolean findingGesturesEnabled = false;
 
     private boolean clickingKeysEnabled = false;
 
@@ -52,6 +56,9 @@ public class ConvexHullSolution implements ISolution {
         if(mats.isEmpty()) {
             throw new RuntimeException("Mats not initialized");
         }
+        if(!findingGesturesEnabled) {
+            return;
+        }
         findContours();
         findConvexHull();
         findCentroid();
@@ -64,7 +71,7 @@ public class ConvexHullSolution implements ISolution {
                 lastClickedKeys = clickedKeys;
             }
         }
-        System.out.println("end of execute");
+//        System.out.println("end of execute");
     }
 
     @Override
@@ -100,6 +107,31 @@ public class ConvexHullSolution implements ISolution {
         clickingKeysEnabled = false;
     }
 
+    @Override
+    public void enableFindingGestures() {
+        findingGesturesEnabled = true;
+    }
+
+    @Override
+    public void disableFindingGestures() {
+        findingGesturesEnabled = false;
+    }
+
+    @Override
+    public MatOfPoint getConvexHull() {
+        return convexHull;
+    }
+
+    @Override
+    public Point[] getSmallestRectanglePoints() {
+        return smallestRectanglePoints;
+    }
+
+    @Override
+    public Map<Point, FingerNames> getPointsToFingers() {
+        return pointsToFingers;
+    }
+
     private void findContours() {
         Mat contourizedImageMat = contourizer.findBiggestContourAndNotFill(mats.get(MatTypes.BINARIZED_MAT));
         mats.put(MatTypes.CONTOURIZED_MAT_NOT_FILLED, contourizedImageMat);
@@ -130,7 +162,16 @@ public class ConvexHullSolution implements ISolution {
         int paintedPointsAboveCentroid = CommonUtils.countPaintedPoints(binarizedMatWithoutSmallObjects, smallestRectanglePoints[0], new Point(smallestRectanglePoints[1].x, centroid.y));
         double rectangleSurfaceArea = CommonUtils.countRectangleSurfaceArea(smallestRectanglePoints);
         if(paintedPointsAboveCentroid / CommonUtils.countRectangleSurfaceArea(rectangleAboveCentroidPoints) > 0.35 && rectangleSurfaceArea / binarizedMatWithoutSmallObjects.total() > 0.05) {
-            pointsToFingers = fingerFinder.retrieveFingersFromContour(convexHull);
+            pointsToFingers = fingerFinder.retrieveFingersFromContour(convexHull, centroid);
+            List<Point> pointsToDraw = new ArrayList<>(pointsToFingers.keySet());
+            Mat contourWithFingers = mats.get(MatTypes.CONTOURIZED_MAT_NOT_FILLED).clone();
+            for(Point p : pointsToDraw) {
+                Imgproc.line(contourWithFingers, centroid, p, new Scalar(255, 0, 0), 3);
+//                                            if() {
+                Imgproc.putText(contourWithFingers, pointsToFingers.get(p).toString(), p, 1, 2, new Scalar(255, 0, 0));
+//                                            }
+            }
+            mats.put(MatTypes.CONTOURIZED_MAT_NOT_FILLED_WITH_FINGERS, contourWithFingers);
         }
     }
 }

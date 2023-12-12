@@ -14,7 +14,7 @@ public class Contourizer implements IContourizer {
     public Mat findBiggestContourAndFill(Mat inputMat) {
         List<MatOfPoint> contours = findContours(inputMat);
         int maxValIndex = findMaxValIndex(contours);
-        Mat canvas = Mat.zeros(inputMat.size(), CvType.CV_32F);
+        Mat canvas = Mat.zeros(inputMat.size(), CvType.CV_8UC1);
         Imgproc.drawContours(canvas, contours, maxValIndex, new Scalar(255, 255, 255), Core.FILLED);
         return canvas;
     }
@@ -23,7 +23,7 @@ public class Contourizer implements IContourizer {
     public Mat findBiggestContourAndNotFill(Mat inputMat) {
         List<MatOfPoint> contours = findContours(inputMat);
         int maxValIndex = findMaxValIndex(contours);
-        Mat canvas = Mat.zeros(inputMat.size(), CvType.CV_32F);
+        Mat canvas = Mat.zeros(inputMat.size(), CvType.CV_8UC1);
         Imgproc.drawContours(canvas, contours, maxValIndex, new Scalar(255, 255, 255), 1);
         return canvas;
     }

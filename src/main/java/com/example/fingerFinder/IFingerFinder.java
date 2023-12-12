@@ -7,5 +7,5 @@ import org.opencv.core.Point;
 import java.util.Map;
 
 public interface IFingerFinder {
-    Map<Point, FingerNames> retrieveFingersFromContour(MatOfPoint convexHull);
+    Map<Point, FingerNames> retrieveFingersFromContour(MatOfPoint convexHull, Point centroid);
 }

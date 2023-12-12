@@ -11,7 +11,6 @@ import com.example.contourizer.impl.Contourizer;
 import com.example.converters.IConverter;
 import com.example.converters.impl.Converter;
 import com.example.enums.ColorSpaces;
-import com.example.enums.FingerNames;
 import com.example.fingerFinder.IFingerFinder;
 import com.example.fingerFinder.impl.FingerFinder;
 import com.example.fingersToKeyConverter.impl.FingersToKeyConverter;
@@ -74,16 +73,13 @@ public class Controller implements Initializable {
     private CheckBox drawFingersConnectionsCheckbox;
 
     @FXML
-    private CheckBox drawFingersNamesCheckbox;
-
-    @FXML
     private CheckBox drawSmallestRectangleCheckbox;
 
     @FXML
     private CheckBox enableClickingKeysCheckbox;
 
     @FXML
-    private CheckBox enableFindingFingersCheckBox;
+    private CheckBox enableFindingGesturesCheckBox;
 
     @FXML
     @Getter
@@ -176,7 +172,7 @@ public class Controller implements Initializable {
         fingerFinder = new FingerFinder(converter);
         matProcessor = new MatProcessor();
         keyClicker = new KeyClicker(new FingersToKeyConverter());
-        solution = new ConvexHullSolution(contourizer, fingerFinder, keyClicker);
+        solution = new SkeletonBasedSolution(contourizer, fingerFinder, keyClicker);
 
 //        adding listeners to view components
         addListenerToSlider(minFirstSlider, true);
@@ -197,7 +193,6 @@ public class Controller implements Initializable {
 
         drawConvexHullCheckbox.fire();
         drawFingersConnectionsCheckbox.fire();
-        drawFingersNamesCheckbox.fire();
 
         OpenCV.loadLocally();
 
@@ -292,10 +287,10 @@ public class Controller implements Initializable {
         switch(solution.getClass().getSimpleName()) {
             case "SkeletonBasedSolution":
                 solution = new ConvexHullSolution(contourizer, fingerFinder, keyClicker);
-                switchBetweenSolutionsButton.setText("Switch to convex hull");
+                switchBetweenSolutionsButton.setText("Switch to skeletonization");
                 break;
             case "ConvexHullSolution":
-                solution = new SkeletonBasedSolution();
+                solution = new SkeletonBasedSolution(contourizer, fingerFinder, keyClicker);
                 switchBetweenSolutionsButton.setText("Switch to convex hull");
                 break;
         }
@@ -321,20 +316,19 @@ public class Controller implements Initializable {
                         BufferedImage originalBufferedImage = converterBuffered.convert(frame);
 
                         Mat binarizedImageMat = null;
-                        Mat binarizedImageWithoutEmptyAreasMat = null;
-                        Mat contourizedImageMat = null;
-                        BufferedImage binarizedBufferedImage = null;
-                        BufferedImage contouredBufferedImage = null;
-                        Map<Point, FingerNames> pointsToFingers = null;
                         if(delay == 0){
-//                            System.out.println("Thread in Controller " + Thread. currentThread().getId());
-//                            originalImageView.setImage(CommonUtils.bufferedImageToFXImage(originalBufferedImage));
                             binarizedImageMat = binarizator.convertBufferedImageToBinarizedMat(originalBufferedImage, model.getMinThresholdScalar(), model.getMaxThresholdScalar());
-//                            binarizedBufferedImage = converter.convertMatToBufferedImage(binarizedImageMat);
-//                            contourizer.processBiggestContour(binarizedImageMat);
-//                            binarizedImageWithoutEmptyAreasMat = contourizer.processBiggestContour(binarizedImageMat);
                             solution.setInitialMats(CommonUtils.convertBufferedImageToMat(originalBufferedImage), binarizedImageMat);
-                            solution.enableClickingKeys();
+                            if(enableClickingKeysCheckbox.isSelected()) {
+                                solution.enableClickingKeys();
+                            } else {
+                                solution.disableClickingKeys();
+                            }
+                            if(enableFindingGesturesCheckBox.isSelected()) {
+                                solution.enableFindingGestures();
+                            } else {
+                                solution.disableFindingGestures();
+                            }
                             try{
                                 solution.execute();
                             } catch (Exception e) {
@@ -345,10 +339,7 @@ public class Controller implements Initializable {
                                 lastClickedKeysText.setText(solution.getLastClickedKeys());
                             }
 
-//                            System.out.println("before setting image");
-                            setFXImagesBasedOnSolution();
-//                            System.out.println();
-//                            binarizedImageView.setImage(CommonUtils.bufferedImageToFXImage(binarizedBufferedImage));
+                            setFXImagesBasedOnSolutionAndOptions();
 
                             // Convert the image to CV_32F (32-bit floating-point) for distance transform
 //                            Mat floatImage = new Mat();
@@ -377,7 +368,7 @@ public class Controller implements Initializable {
 
 //                            finalImageView.setImage(CommonUtils.bufferedImageToFXImage(converter.convertMatToBufferedImage(result)));
 
-//                            if(enableFindingFingersCheckBox.isSelected()) {
+//                            if(enableFindingGesturesCheckBox.isSelected()) {
 //                                contourizedImageMat = contourizer.findBiggestContour(binarizedImageMat, false);
 //
 //                                MatOfPoint convexHull = CommonUtils.findConvexHullPoints(contourizedImageMat);
@@ -450,127 +441,66 @@ public class Controller implements Initializable {
         }).start();
     }
 
-    private void setFXImagesBasedOnSolution() throws IOException, InterruptedException {
-//        System.out.println("Thread in setImages " + Thread. currentThread().getId());
+    private void setFXImagesBasedOnSolutionAndOptions() throws IOException, InterruptedException {
         Map<MatTypes, Mat> mats = solution.getMats();
+        Mat finalImage = null;
         switch(solution.getClass().getSimpleName()) {
             case "SkeletonBasedSolution":
-                Mat originalMat = mats.get(MatTypes.ORIGINAL_MAT);
-                Mat binarizedMat = mats.get(MatTypes.BINARIZED_MAT);
-//                Mat binarizedMatWithoutEmptySpacesAndSmallObjects = mats.get(MatTypes.BINARIZED_MAT_WITHOUT_EMPTY_SPACES_AND_SMALL_OBJECTS);
-                Mat distanceTransformedMat = mats.get(MatTypes.DISTANCE_TRANSFORMED_MAT);
-                Thread.sleep(1);
+                Mat originalMat = mats.get(MatTypes.ORIGINAL_MAT).clone();
+                Mat binarizedMat = mats.get(MatTypes.BINARIZED_MAT).clone();
+//                Mat binarizedMatWithoutEmptySpacesAndSmallObjects = mats.get(MatTypes.BINARIZED_MAT_WITHOUT_EMPTY_SPACES_AND_SMALL_OBJECTS).clone();
                 originalImageView.setImage(CommonUtils.bufferedImageToFXImage(converter.convertMatToBufferedImage(originalMat)));
-                Thread.sleep(1);
                 binarizedImageView.setImage(CommonUtils.bufferedImageToFXImage(converter.convertMatToBufferedImage(binarizedMat)));
-                Thread.sleep(1);
-                finalImageView.setImage(CommonUtils.bufferedImageToFXImage(converter.convertMatToBufferedImage(distanceTransformedMat)));
-                Thread.sleep(1);
+                if(!enableFindingGesturesCheckBox.isSelected()) {
+                    return;
+                }
+
+                Mat mergedBinarizedWithLocalMaxima = mats.get(MatTypes.CRITICAL_POINTS_MAT).clone();
+                finalImage = mergedBinarizedWithLocalMaxima;
+                if(drawConvexHullCheckbox.isSelected()) {
+                    List<MatOfPoint> contourMat = new ArrayList<>();
+                    contourMat.add(solution.getConvexHull());
+                    Imgproc.drawContours(finalImage, contourMat, 0, new Scalar(255, 0, 0));
+                }
+                Mat distanceTransformedMat = mats.get(MatTypes.DISTANCE_TRANSFORMED_MAT).clone();
+
+                if(drawFingersConnectionsCheckbox.isSelected() && mats.get(MatTypes.CONTOURIZED_MAT_NOT_FILLED_WITH_FINGERS) != null) {
+                    finalImage = mats.get(MatTypes.CONTOURIZED_MAT_NOT_FILLED_WITH_FINGERS).clone();
+                }
+
+                finalImageView.setImage(CommonUtils.bufferedImageToFXImage(converter.convertMatToBufferedImage(finalImage)));
                 break;
             case "ConvexHullSolution":
-//                System.out.println(mats.keySet());
-//                Thread.sleep(1);
-                originalImageView.setImage(CommonUtils.bufferedImageToFXImage(converter.convertMatToBufferedImage(mats.get(MatTypes.ORIGINAL_MAT))));
-//                Thread.sleep(1);
-                binarizedImageView.setImage(CommonUtils.bufferedImageToFXImage(converter.convertMatToBufferedImage(mats.get(MatTypes.BINARIZED_MAT))));
-//                Thread.sleep(1);
-//                why does it is setting slower than rest of imagesviews above?
-                finalImageView.setImage(CommonUtils.bufferedImageToFXImage(converter.convertMatToBufferedImage(mats.get(MatTypes.CONTOURIZED_MAT_NOT_FILLED))));
+                Mat originalImageMat = mats.get(MatTypes.ORIGINAL_MAT).clone();
+                Mat binarizedImageMat = mats.get(MatTypes.BINARIZED_MAT).clone();
+                originalImageView.setImage(CommonUtils.bufferedImageToFXImage(converter.convertMatToBufferedImage(originalImageMat)));
+                binarizedImageView.setImage(CommonUtils.bufferedImageToFXImage(converter.convertMatToBufferedImage(binarizedImageMat)));
+                if(!enableFindingGesturesCheckBox.isSelected()) {
+                    return;
+                }
+
+                Mat contourizedMatNotFilled = mats.get(MatTypes.CONTOURIZED_MAT_NOT_FILLED).clone();
+                finalImage = contourizedMatNotFilled;
+                if(drawFingersConnectionsCheckbox.isSelected() && mats.get(MatTypes.CONTOURIZED_MAT_NOT_FILLED_WITH_FINGERS) != null) {
+                    finalImage = mats.get(MatTypes.CONTOURIZED_MAT_NOT_FILLED_WITH_FINGERS).clone();
+                }
+                if(drawConvexHullCheckbox.isSelected()) {
+                    List<MatOfPoint> contourMat = new ArrayList<>();
+                    contourMat.add(solution.getConvexHull());
+                    Imgproc.drawContours(finalImage, contourMat, 0, new Scalar(255, 0, 0));
+                }
+                if(drawSmallestRectangleCheckbox.isSelected()) {
+                    Point[] rectanglePoints = solution.getSmallestRectanglePoints();
+                    Imgproc.rectangle (
+                            finalImage,                    //Matrix obj of the image
+                            rectanglePoints[0],        //p1
+                            rectanglePoints[1],       //p2
+                            new Scalar(255, 255, 255),     //Scalar object for color
+                            5                          //Thickness of the line
+                    );
+                }
+                finalImageView.setImage(CommonUtils.bufferedImageToFXImage(converter.convertMatToBufferedImage(finalImage)));
                 break;
         }
     }
-
-//    public static Mat findLocalMaxima(Mat input) {
-//        Mat localMaxima = new Mat();
-//
-//        // Perform dilation to find local maxima
-//        Mat dilated = new Mat();
-//        Size kernelSize = new Size(4, 4); // Adjust kernel size as needed
-//        Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, kernelSize);
-//        Imgproc.dilate(input, dilated, kernel);
-//
-//        // Compare original distance-transformed image with dilated image
-//        Core.compare(input, dilated, localMaxima, Core.CMP_EQ);
-//
-//        // Optionally, you can further process the local maxima (e.g., filtering noise)
-//        // ...
-//
-//        return localMaxima;
-//    }
-//
-//    public static Mat findLocalMaximaWithinContour(Mat input, List<MatOfPoint> contours) {
-//        Mat localMaxima = new Mat();
-//
-//        // Create a blank mask
-//        Mat mask = Mat.zeros(input.size(), CvType.CV_8U);
-//
-//        // Draw contours on the mask
-//        Imgproc.drawContours(mask, contours, -1, new Scalar(255), -1);
-//
-//        // Mask the local maxima using the contour mask
-//        Core.bitwise_and(input, mask, localMaxima);
-//
-//        // Optionally, you can further process the local maxima (e.g., filtering noise)
-//        // ...
-//
-//        return localMaxima;
-//    }
-//
-//    private Mat skeletonizeDistanceTransformedImage(Mat input) {
-//        int rows = input.rows();
-//        int cols = input.cols();
-//        Mat output = input.clone();
-//        for (int i = 0; i < rows; i++) {
-//            for (int j = 0; j < cols; j++) {
-//                // Get the RGB values for each channel
-//                double[] rgbValues = input.get(i, j);
-//                if(rgbValues[0] == 255 && rgbValues[1] == 255 && rgbValues[2] == 255) {
-//                    output.put(i, j, new double[]{255, 255, 255});
-//                } else {
-//                    output.put(i, j, new double[]{0, 0, 0});
-//                }
-//            }
-//        }
-//        return output;
-//    }
-//
-//
-//
-//    private Mat iterateThrough(Mat input) {
-//        int rows = input.rows();
-//        int cols = input.cols();
-//        Mat output = input.clone();
-//        for (int i = 0; i < rows; i++) {
-//            for (int j = 0; j < cols; j++) {
-//                // Get the RGB values for each channel
-//                double[] rgbValues = input.get(i, j);
-//                if(rgbValues[0] > 60 && rgbValues[1] > 60 && rgbValues[2] > 60) {
-//                    output.put(i, j, new double[]{255, 255, 255});
-//                } else {
-//                    output.put(i, j, new double[]{0, 0, 0});
-//                }
-//            }
-//        }
-//        return output;
-//    }
-
-//    private Mat skeletonize(Mat input) {
-//        Mat skel = new Mat(input.size(), CvType.CV_32F, new Scalar(0));
-//        Mat temp = new Mat(input.size(), CvType.CV_32F, new Scalar(0));
-//        Mat eroded = new Mat(input.size(), CvType.CV_32F, new Scalar(0));
-//        Mat element = Imgproc.getStructuringElement(Imgproc.MORPH_CROSS, new Size(3, 3));
-//
-//        boolean done;
-//        do {
-//            Imgproc.erode(input, eroded, element);
-//            Imgproc.dilate(eroded, temp, element); // temp = open(img)
-//            Core.subtract(input, temp, temp);
-//            Core.bitwise_or(skel, temp, skel); // Perform the bitwise OR operation
-//            eroded.copyTo(input);
-//
-//            done = (Core.countNonZero(input) == 0);
-//        } while (!done);
-//
-//        return skel; // Return the skel Mat, not the input Mat
-//    }
 }

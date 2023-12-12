@@ -46,6 +46,38 @@ public class CommonUtils {
         return new MatOfPoint(hullPoints);
     }
 
+    public static MatOfPoint findConvexHullPointsWithoutDuplicates(Mat input) {
+        MatOfPoint contour = converter.convertMatToMatOfPointNonEmptyPoints(input);
+        MatOfInt hull = new MatOfInt();
+        Imgproc.convexHull(contour, hull);
+        Point[] contourArray = contour.toArray();
+//        Point[] hullPoints = new Point[hull.rows()];
+        List<Point> hullPointsList = new ArrayList<>();
+        List<Integer> hullContourIdxList = hull.toList();
+        int max = hullContourIdxList.size();
+        for (int i = 0; i < max; i++) {
+            Point pointFromContour = contourArray[hullContourIdxList.get(i)];
+            boolean skip = false;
+            for(int j = 0; j < hullPointsList.size(); j++) {
+                Point actualPoint = hullPointsList.get(j);
+                if(actualPoint.x > pointFromContour.x - 15 && actualPoint.x < pointFromContour.x + 15 && actualPoint.y > pointFromContour.y - 15 && actualPoint.y < pointFromContour.y + 15) {
+                    skip = true;
+                    break;
+                }
+            }
+            if(skip) {
+                continue;
+            }
+            hullPointsList.add(pointFromContour);
+//            hullPoints[i] = contourArray[hullContourIdxList.get(i)];
+        }
+        Point[] hullPoints = new Point[hullPointsList.size()];
+        for(int i = 0; i < hullPointsList.size(); i++) {
+            hullPoints[i] = hullPointsList.get(i);
+        }
+        return new MatOfPoint(hullPoints);
+    }
+
     public static Mat convertBufferedImageToMat(BufferedImage bufferedImage) {
         Mat mat = new Mat(bufferedImage.getHeight(), bufferedImage.getWidth(), CvType.CV_8UC3);
         byte[] data = ((DataBufferByte) bufferedImage.getRaster().getDataBuffer()).getData();

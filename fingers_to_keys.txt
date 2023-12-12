@@ -1,5 +1,5 @@
 [f5]:[THUMB,INDEX,MIDDLE] #start presenting in document viewer
-[right]:[INDEX,MIDDLE,RING] #next slide
-[left]:[INDEX,PINKY] #previous slide
+[left]:[INDEX,MIDDLE,RING,THUMB] #next slide
+[right]:[INDEX,PINKY] #previous slide
 #[control,right]:[INDEX,THUMB] #rotate
 #[escape]:[INDEX,MIDDLE,RING,PINKY] #quit
