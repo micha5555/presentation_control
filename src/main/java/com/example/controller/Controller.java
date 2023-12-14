@@ -340,94 +340,7 @@ public class Controller implements Initializable {
                             }
 
                             setFXImagesBasedOnSolutionAndOptions();
-
-                            // Convert the image to CV_32F (32-bit floating-point) for distance transform
-//                            Mat floatImage = new Mat();
-//                            binarizedImageMat.convertTo(floatImage, CvType.CV_32F);
-//
-//                            // Perform distance transform
-//                            Mat distanceTransform = new Mat();
-//                            Imgproc.distanceTransform(binarizedImageMat, distanceTransform, Imgproc.DIST_L2, Imgproc.DIST_MASK_5);
-//
-//                            // Normalize the distance transform for display
-//                            Core.normalize(distanceTransform, distanceTransform, 0, 1, Core.NORM_MINMAX);
-
-//                            originalImageView.setImage(CommonUtils.bufferedImageToFXImage(binarizedBufferedImage));
-
-//                            Mat distanceTransform = new Mat();
-//                            Imgproc.distanceTransform(binarizedImageWithoutEmptyAreasMat, distanceTransform, Imgproc.DIST_L1, Imgproc.DIST_MASK_5);
-//
-//                            Mat localMaxima = findLocalMaxima(distanceTransform);
-//                            Mat result = new Mat();
-//                            Core.bitwise_and(binarizedImageWithoutEmptyAreasMat, localMaxima, result);
-//                            Thread.sleep(10);
-//                            binarizedImageView.setImage(CommonUtils.bufferedImageToFXImage(converter.convertMatToBufferedImage(binarizedImageWithoutEmptyAreasMat)));
-//                            Thread.sleep(1);
-                            // Normalize the distance transform for display
-//                            Core.normalize(distanceTransform, distanceTransform, 0, 128, Core.NORM_MINMAX);
-
-//                            finalImageView.setImage(CommonUtils.bufferedImageToFXImage(converter.convertMatToBufferedImage(result)));
-
-//                            if(enableFindingGesturesCheckBox.isSelected()) {
-//                                contourizedImageMat = contourizer.findBiggestContour(binarizedImageMat, false);
-//
-//                                MatOfPoint convexHull = CommonUtils.findConvexHullPoints(contourizedImageMat);
-//                                List<MatOfPoint> contourMat = new ArrayList<>();
-//                                contourMat.add(convexHull);
-//                                if(drawConvexHullCheckbox.isSelected()) {
-//                                    Imgproc.drawContours(contourizedImageMat, contourMat, 0, new Scalar(255, 0, 0));
-//                                }
-//
-//                                Point centroid = CommonUtils.findCentroid(convexHull);
-//
-//                                Point[] rectanglePoints = CommonUtils.findBiggestRectangleOnHand(convexHull);
-//
-//                                int paintedPointsAboveCentroid = CommonUtils.countPaintedPoints(binarizedImageMat, rectanglePoints[0], new Point(rectanglePoints[1].x, centroid.y));
-//                                Point[] rectangleAboveCentroidPoints = new Point[2];
-//                                rectangleAboveCentroidPoints[0] = new Point(rectanglePoints[0].x, rectanglePoints[0].y);
-//                                rectangleAboveCentroidPoints[1] = new Point(rectanglePoints[1].x, centroid.y);
-//                                double rectangleSurfaceArea = CommonUtils.countRectangleSurfaceArea(rectanglePoints);
-//                                if(paintedPointsAboveCentroid / CommonUtils.countRectangleSurfaceArea(rectangleAboveCentroidPoints) > 0.35 && rectangleSurfaceArea / contourizedImageMat.total() > 0.05) {
-//                                    pointsToFingers = fingerFinder.retrieveFingersFromContour(convexHull);
-//                                    for(Point p : pointsToFingers.keySet()) {
-//                                        Imgproc.circle(contourizedImageMat, p, 7, new Scalar(255, 0, 0), Imgproc.FILLED);
-//                                    }
-//                                    if(drawFingersConnectionsCheckbox.isSelected()) {
-//                                        List<Point> pointsToDraw = new ArrayList<>(pointsToFingers.keySet());
-//                                        for(Point p : pointsToDraw) {
-//                                            Imgproc.line(contourizedImageMat, centroid, p, new Scalar(255, 0, 0), 3);
-////                                            if() {
-//                                                Imgproc.putText(contourizedImageMat, pointsToFingers.get(p).toString(), p, 1, 2, new Scalar(255, 0, 0));
-////                                            }
-//                                        }
-//                                    }
-//
-//                                    if(enableClickingKeysCheckbox.isSelected()) {
-//                                        String clickedKeys = keyClicker.clickKeyBasedOnFingers(pointsToFingers);
-//                                        if(clickedKeys != null) {
-//                                            lastClickedKeysText.setText(clickedKeys);
-//                                        }
-//                                    }
-//                                } else {
-//                                    pointsToFingers = new HashMap<>();
-//                                }
-//
-//                                if(drawSmallestRectangleCheckbox.isSelected()) {
-//                                    Imgproc.rectangle (
-//                                            contourizedImageMat,                    //Matrix obj of the image
-//                                            rectanglePoints[0],        //p1
-//                                            rectanglePoints[1],       //p2
-//                                            new Scalar(255, 255, 255),     //Scalar object for color
-//                                            5                          //Thickness of the line
-//                                    );
-//                                }
-//
-//                                contouredBufferedImage = matProcessor.processFinalBufferedImage(converter, contourizedImageMat, pointsToFingers);
-//                                finalImageView.setImage(CommonUtils.bufferedImageToFXImage(contouredBufferedImage));
-//                            }
-
                         }
-//                        originalImageView.setImage(CommonUtils.bufferedImageToFXImage(originalBufferedImage));
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -462,7 +375,12 @@ public class Controller implements Initializable {
                     contourMat.add(solution.getConvexHull());
                     Imgproc.drawContours(finalImage, contourMat, 0, new Scalar(255, 0, 0));
                 }
-                Mat distanceTransformedMat = mats.get(MatTypes.DISTANCE_TRANSFORMED_MAT).clone();
+
+//                Mat distanceTransformedMat = mats.get(MatTypes.DISTANCE_TRANSFORMED_MAT).clone();
+//                Mat localMaximaMat = mats.get(MatTypes.LOCAL_MAXIMA_MAT).clone();
+//                Mat mergedBinarizedMatWithoutSmallObjectsWithLocalMaximaMat = mats.get(MatTypes.MERGED_BINARIZED_MAT_WITHOUT_SMALL_OBJECTS_WITH_LOCAL_MAXIMA_MAT).clone();
+//                Mat convexHullMat = mats.get(MatTypes.CONVEX_HULL_MAT).clone();
+//                Mat criticalPointsMat = mats.get(MatTypes.CRITICAL_POINTS_MAT).clone();
 
                 if(drawFingersConnectionsCheckbox.isSelected() && mats.get(MatTypes.CONTOURIZED_MAT_NOT_FILLED_WITH_FINGERS) != null) {
                     finalImage = mats.get(MatTypes.CONTOURIZED_MAT_NOT_FILLED_WITH_FINGERS).clone();
