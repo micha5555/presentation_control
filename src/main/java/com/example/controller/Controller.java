@@ -16,7 +16,7 @@ import com.example.fingerFinder.impl.FingerFinder;
 import com.example.fingersToKeyConverter.impl.FingersToKeyConverter;
 import com.example.matProcessor.IMatProcessor;
 import com.example.matProcessor.impl.MatProcessor;
-import com.example.model.Model;
+import com.example.binarization.BinarizationParameters;
 import com.example.solution.ISolution;
 import com.example.solution.impl.ConvexHullSolution;
 import com.example.solution.impl.SkeletonBasedSolution;
@@ -137,7 +137,7 @@ public class Controller implements Initializable {
     @FXML
     private Button switchBetweenSolutionsButton;
 
-    private Model model;
+    private BinarizationParameters model;
 
     private OpenCVFrameGrabber camera;
 
@@ -158,7 +158,7 @@ public class Controller implements Initializable {
 //    }
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        model = new Model();
+        model = new BinarizationParameters();
 
         switchBetweenColorSpacesButton.setText("Switch to RGB");
         switchBetweenColorSpacesButton.setOnAction(switchBetweenColorSpaces);
@@ -318,6 +318,11 @@ public class Controller implements Initializable {
                         Mat binarizedImageMat = null;
                         if(delay == 0){
                             binarizedImageMat = binarizator.convertBufferedImageToBinarizedMat(originalBufferedImage, model.getMinThresholdScalar(), model.getMaxThresholdScalar());
+//                            ISkeletonization skeletonizer = new ZhangSuenISkeletonization();
+//                            Mat skeletonizedMat = skeletonizer.skeletonize(binarizedImageMat);
+//                            originalImageView.setImage(CommonUtils.bufferedImageToFXImage(originalBufferedImage));
+//                            binarizedImageView.setImage(CommonUtils.bufferedImageToFXImage(converter.convertMatToBufferedImage(binarizedImageMat)));
+//                            finalImageView.setImage(CommonUtils.bufferedImageToFXImage(converter.convertMatToBufferedImage(skeletonizedMat)));
                             solution.setInitialMats(CommonUtils.convertBufferedImageToMat(originalBufferedImage), binarizedImageMat);
                             if(enableClickingKeysCheckbox.isSelected()) {
                                 solution.enableClickingKeys();
@@ -385,6 +390,8 @@ public class Controller implements Initializable {
                 if(drawFingersConnectionsCheckbox.isSelected() && mats.get(MatTypes.CONTOURIZED_MAT_NOT_FILLED_WITH_FINGERS) != null) {
                     finalImage = mats.get(MatTypes.CONTOURIZED_MAT_NOT_FILLED_WITH_FINGERS).clone();
                 }
+
+//                finalImage = mats.get(MatTypes.DISTANCE_TRANSFORMED_MAT).clone();
 
                 finalImageView.setImage(CommonUtils.bufferedImageToFXImage(converter.convertMatToBufferedImage(finalImage)));
                 break;

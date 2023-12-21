@@ -35,7 +35,7 @@ public class HSVBasedBinarizator implements IBinarizator {
                 // Get the RGB values for each channel
                 double[] rgbValues = input.get(i, j);
 
-                double hsvValues[] = rgb_to_hsv(rgbValues[2], rgbValues[1], rgbValues[0]);
+                double hsvValues[] = rgbToHsv(rgbValues[2], rgbValues[1], rgbValues[0]);
                 output.put(i, j, new double[]{hsvValues[2], hsvValues[1], hsvValues[0]});
 
                 // Print or use the RGB values as needed
@@ -45,7 +45,7 @@ public class HSVBasedBinarizator implements IBinarizator {
         return output;
     }
 
-    private static double[] rgb_to_hsv(double r, double g, double b)
+    public static double[] rgbToHsv(double r, double g, double b)
     {
 
         // R, G, B values are divided by 255
@@ -84,8 +84,49 @@ public class HSVBasedBinarizator implements IBinarizator {
 
         // compute v
         double v = cmax * 100;
-
+//
+//        System.out.println("Count by first version");
+//        System.out.println("Hue: " + h + ", Saturation: " + s + ", Brightness: " + v);
         return new double[]{h, s, v};
+    }
+
+    public static double[] rgbToHsv2(double red, double green, double blue) {
+        double temp = Math.min(Math.min(red, green), blue);
+
+        // Calculating Value component
+        double value = Math.max(Math.max(red, green), blue);
+
+        // TEMP is now the minimum component, and value is the maximum component
+
+        // Calculating Hue component
+        double hue = 0;
+        if (temp == value) {
+            hue = 0;
+        } else {
+            if (red == value) {
+                hue = 0 + ((green - blue) * 60.0 / (value - temp));
+            }
+            if (green == value) {
+                hue = 120 + ((blue - red) * 60.0 / (value - temp));
+            }
+            if (blue == value) {
+                hue = 240 + ((red - green) * 60.0 / (value - temp));
+            }
+        }
+
+        if (hue < 0) {
+            hue += 360;
+        }
+
+        // Calculating Saturation component
+        double saturation = (value == 0) ? 0 : ((value - temp) * 100.0) / value;
+
+        // Calculating Value component
+        double brightness = (value * 100.0) / 255;
+
+        System.out.println("Count by second version");
+        System.out.println("Hue: " + hue + ", Saturation: " + saturation + ", Brightness: " + brightness);
+        return new double[]{hue, saturation, brightness};
     }
 
     private static Mat binarizeHSVImage(Mat input, Scalar minHsvThreshold, Scalar maxHsvThreshold) {
